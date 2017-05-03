@@ -38,11 +38,17 @@ hardBtn.addEventListener("click", function(){
 	}
 });
 
-
 resetButton.addEventListener("click", function() {
+	//generate all new colors
 	colors = generateRandomColors(numSquares);
+	//pick a new random color from array
 	pickedColor = pickColor();
+	//change colorDisplay to match picked Color
 	colorDisplay.textContent = pickedColor;
+	//reset play again button
+	resetButton.textContent = "New Colors";
+	//reset message area
+	messageDisplay.textContent = "";
 	for (var i = 0; i < squares.length; i++) {
 		squares[i].style.background = colors[i];
 	}
@@ -52,9 +58,13 @@ resetButton.addEventListener("click", function() {
 colorDisplay.textContent = pickedColor;
 
 for (var i = 0; i < squares.length; i++){
+	//add initial colors to squares
 	squares[i].style.background = colors[i];
+	//add click listeners to squares
 	squares[i].addEventListener("click", function() {
+		//grab color of clicked square
 		var clickedColor = this.style.background;
+		//compare color to pickedColor
 		if(clickedColor === pickedColor){
 			messageDisplay.textContent = "Correct!";
 			resetButton.textContent = "Play Again?";
@@ -68,7 +78,9 @@ for (var i = 0; i < squares.length; i++){
 }
 
 function changeColors(color){
+	//loop through all squares
 	for (var i = 0; i < squares.length; i++){
+		//change each color to match given color
 		squares[i].style.background = color;
 	}
 }
@@ -79,14 +91,18 @@ function pickColor(){
 }
 
 function generateRandomColors(num){
+	//make an array
 	var arr = [];
+	//add num random colors to arr
 	for (var i = 0; i < num; i++){
+		//get random color and push into array
 		arr.push(randomColor());
 	}
 	return arr;
 }
 
 function randomColor(){
+	//picks random digits for red, green, blue from 0-255
 	var r = Math.floor(Math.random() * 256);
 	var g = Math.floor(Math.random() * 256);
 	var b = Math.floor(Math.random() * 256);
