@@ -799,91 +799,102 @@ Course TA
 - different from `<em>` in that if you have something nested as 2em under and existing parent 2em, it won’t be 4em
 
 # Section 7: Bootstrap
-Objective 1: Define Bootstrap and explain why we use it
-Objective 2: Include bootstrap locally and by using a CDN
+- Objective 1: Define Bootstrap and explain why we use it
+- Objective 2: Include bootstrap locally and by using a CDN
 
-Once installed,
-Objective 3: Use common Bootstrap components like navs and buttons
-Objective 4: Build a layout using the Boostrap grid system
+- Once installed,
+- Objective 3: Use common Bootstrap components like navs and buttons
+- Objective 4: Build a layout using the Boostrap grid system
 
-Project: Portfolio
-Project: Startup Landing Page
-What is Bootstrap?
-http://getbootstrap.com 
-http://expo.getbootstrap.com/ 
--popular and speedy
--helps makes good looking and responsive website
--it’s like lego pieces where you can add to your site
+- Project: Portfolio
+- Project: Startup Landing Page
 
--CSS portion has buttons, forms
--Components has nav bars
-Adding Bootstrap to a Project
-02 Installing Bootstrap
--how to install bootstrap, 2 methods
+## What is Bootstrap?
+[Bootstrap](http://getbootstrap.com) 
+[Bootstrap Expo](http://expo.getbootstrap.com/) 
+- popular and speedy
+- helps makes good looking and responsive website
+- it’s like lego pieces where you can add to your site
 
-METHOD 1
--Download the file
--2 important files: bootstrap.css and bootstrap.min.css
+- CSS portion has buttons, forms
+- Components has nav bars
 
-METHOD 2
-Use the Bootstrap CDN
--copy the CDN file hosted online
+## Adding Bootstrap to a Project
+- 02 Installing Bootstrap
+- how to install bootstrap, 2 methods
 
+- METHOD 1
+- Download the file
+- 2 important files: bootstrap.css and bootstrap.min.css
+
+- METHOD 2
+- Use the Bootstrap CDN
+- copy the CDN file hosted online
+```html
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+```
 
-BUTTONS <class: btn>
--can use <a>, <button>, or <input>
--can use options, sizes, states
+- BUTTONS `<class: btn>`
+- can use `<a>`, `<button>`, or `<input>`
+- can use options, sizes, states
 
-OPTIONS <btn-success>
+- OPTIONS `<btn-success>`
 
-SIZES <btn-lg>
+- SIZES `<btn-lg>`
 
-STATES <active>, <disabled=”disabled”>
+- STATES `<active>`, `<disabled=”disabled”>`
 
--you can also override the styles in your CSS too
-Forms and Inputs
-Forms Jumbotrons
--use the online reference as a guide, not a manual that you have to read
+- you can also override the styles in your CSS too
 
-JUMBOTRON
--takes up the whole width of the page
+## Forms and Inputs
+- Forms Jumbotrons
 
-DIV CLASS CONTAINER <div class=”container”>
--can help to make a nice section with left and right margin
+- use the online reference as a guide, not a manual that you have to read
 
-FORMS
--form-control
--form-inline
--form-group
-Nav Bars
-04 Navbars
--getbootstrap.com > components > nav bar
--can add in a container to make the menus not close to the edge
-IF you put container inside nav, it will move only the text
-IF you put container over nav, it will do the text and bar
+- JUMBOTRON
+- takes up the whole width of the page
 
-GET DROPDOWNS TO WORK
--include javascript file
+- DIV CLASS CONTAINER `<div class=”container”>`
+- can help to make a nice section with left and right margin
 
+- FORMS
+- form-control
+- form-inline
+- form-group
+
+## Nav Bars
+- 04 Navbars
+- getbootstrap.com > components > nav bar
+- can add in a container to make the menus not close to the edge
+- IF you put container inside nav, it will move only the text
+- IF you put container over nav, it will do the text and bar
+
+- GET DROPDOWNS TO WORK
+- include javascript file
+```html
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+```
+- might says require [jQuery](https://code.jquery.com/), can download cdn and add script
 
--might says require jQuery, can download cdn and add script
-
-ADD HAMBURGER ON RESPONSIVE
+- ADD HAMBURGER ON RESPONSIVE
+```html
  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+```
 
--put this before brand and after navbar-header
+- put this before brand and after navbar-header
+```html
   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
+```
 
-DEFAULT CODE
+-DEFAULT CODE
+```html
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -937,27 +948,31 @@ DEFAULT CODE
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-The Grid System
-06 Grid
-Objectives:
-Understand purpose of Grid System
-Understand the 4 different sizes
-Write Nested Grids
+```
 
--what makes a website responsive
--it will adjust image to fit and then reduce columns when necessary
--scales to 12 columns
+## The Grid System
+- 06 Grid
 
-FOUR DIFFERENT SIZES
--Gridsystem > Grid options
--XS, SM, MD, LG
+- Objectives:
+1. Understand purpose of Grid System
+2. Understand the 4 different sizes
+3. Write Nested Grids
 
--add in another MD class with the LG class IE “col-lg-3 col-md-3 col-sm-6
-***if you specify the medium breakpoint and not the large, it will automatically take the medium point for the large
+- what makes a website responsive
+- it will adjust image to fit and then reduce columns when necessary
+- scales to 12 columns
 
-NESTING GRIDS
--add <div class=”row”> under the div and another <div class=”col-lg-6”> inside of that
-Note about finding image source url from unslpash.com
+- FOUR DIFFERENT SIZES
+- Gridsystem > Grid options
+- XS, SM, MD, LG
+
+- add in another MD class with the LG class IE “col-lg-3 col-md-3 col-sm-6
+- ***if you specify the medium breakpoint and not the large, it will automatically take the medium point for the large
+
+- NESTING GRIDS
+- add `<div class=”row”>` under the div and another `<div class=”col-lg-6”>` inside of that
+
+## Note about finding image source url from unslpash.com
 Hi Everyone!
 In the next lecture, titled "Bootstrap Image Gallery Pt. 1" Colt will show you how to get hi-resolution stock images from a website called unsplash. 
 The method of getting the image url has changed since this video was created. If  you find an image you like you'll need to right click it, select "Inspect" then copy the url from the "src" attribute in the HTML img tag (see example below). 
@@ -970,26 +985,28 @@ If you have any questions please create a thread in the Q&A section.
 Cheers,
 Ian
 Course TA
-Bootstrap Image Gallery
-07_Image_Gallery.zip
-Image_Gallery_Solution.zip
 
--link to bootstrap cdn, link to jquery nav bar
--Colt doesn’t type nav bar from scratch, he copies from Bootstrap site
+## Bootstrap Image Gallery
+- 07_Image_Gallery.zip
+- Image_Gallery_Solution.zip
 
-Quick tip: <navbar-inverse> to change color quickly
-Quick tip: <div class=”thumbnail”> to change size of image to thumbnail
+- link to bootstrap cdn, link to jquery nav bar
+- Colt doesn’t type nav bar from scratch, he copies from Bootstrap site
 
-ICONS
--glyphicons
+- Quick tip: `<navbar-inverse>` to change color quickly
+- Quick tip: `<div class=”thumbnail”>` to change size of image to thumbnail
 
-NAV BAR FIXED TO THETOP
-<navebar-fixed-top> to have the navbar stay on top while you scroll
--add padding to body: 70px to bring image under the nav bar
+- ICONS
+- glyphicons
 
-FONT AWESOME
--install it by copying the CDN
-Note about Font-Awesome
+- NAV BAR FIXED TO THETOP
+- `<navbar-fixed-top>` to have the navbar stay on top while you scroll
+- add padding to body: 70px to bring image under the nav bar
+
+- FONT AWESOME
+- install it by copying the CDN
+
+## Note about Font-Awesome
 Hi all!
 In the next video we will be using a font/icon library called Font Awesome. Font Awesome can now be found at http://fontawesome.io/
 
@@ -998,174 +1015,200 @@ The CDN link can be found here.
 Thanks,
 Ian
 Course TA
-Create a Startup Landing Page Code Along
-Purrfect Match
+
+## Create a Startup Landing Page Code Along
+- Purrfect Match
+```html
 <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
 	
 <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+```
+- make sure to load jQuery first
 
--make sure to load jQuery first
+- font Lato
 
--font Lato
-
-SYNTAX to adjust picture to fit page
+- SYNTAX to adjust picture to fit page
+```html
 html {
 	height: 100%;
 }
-Note About Making Bootstrap Responsive On Mobile Devices
+```
+
+## Note About Making Bootstrap Responsive On Mobile Devices
 Hi Everyone!
 
-If you want your bootstrap styled website to be responsive on mobile then be sure to add the following meta tag to your <head>  element, above the <title>  tag:
-
+If you want your bootstrap styled website to be responsive on mobile then be sure to add the following meta tag to your `<head>` element, above the `<title>`  tag:
+```html
 <meta name="viewport" content="width=device-width, initial-scale=1"> 
-
+```
 Thanks,
 Ian
 Course TA
 
 # Section 8: Introduction to Javascript
-Objectives:
-Evaluate JS using the developer console
-List the 5 JS primitives
-Define variables with the var keyword
-Write code using console.log, alert, and prompt
-The JavaScript Console
--console is meant to test out and not really write full JS file
--focus here is not syntax, focus on the process
--hit enter to execute
-Primitives
-Slides
-OBJECTIVES
--Introduce the 5 primitive data types
--Work with numbers and numeric operations
+- Objectives:
+1. Evaluate JS using the developer console
+2. List the 5 JS primitives
+3. Define variables with the var keyword
+4. Write code using console.log, alert, and prompt
 
--5 data types: numbers, strings, booleans, null, and undefined
+## The JavaScript Console
+- console is meant to test out and not really write full JS file
+- focus here is not syntax, focus on the process
+- hit enter to execute
 
-NUMBERS
--can do math on there, follows order of operations
--modulo = remainder operator, uses % sign IE 
+### Primitives
+[Slides](http://webdev.slides.com/coltsteele/javascript-basics-57#/)
+- OBJECTIVES
+- Introduce the 5 primitive data types
+- Work with numbers and numeric operations
 
-STRINGS
--single or double quotes okay, must start and end with same
--javascript escape character \”goodbye!\”
--concatenation = “charlie” + “brown” //”charliebrown”
--length property = tells you how many characters including letters, numbers, space
--individual access = tells the value of x place
-Primitive Exercises
-Slides
-100 % 3
-Variables
-Slides
--variable is a container that has strings in it
-SYNTAX var yourVariableName = yourValue;
--javascript should be camelCase
--camelCase and snake_case, kabab-case
-Null and Undefined
-Slides
--null is where something is explicitly empty
--undefined is where something is not defined yet
-Useful Built-In Methods
--alert, prompt, console.log
--SYNTAX javascript use // as commenters
--SYNTAX clear() is a method to clear the console
+- 5 data types: numbers, strings, booleans, null, and undefined
 
-ALERT
--pops up a message to the user
-SYNTAX alert(“Hello there!!!”)
-alert(123135135)
-alert(198 * 345)
+- NUMBERS
+- can do math on there, follows order of operations
+- modulo = remainder operator, uses % sign IE 
 
-CONSOLE.LOG
-SYNTAX console.log(“hello from the console!”)
--prints only in the console
+- STRINGS
+- single or double quotes okay, must start and end with same
+- javascript escape character \”goodbye!\”
+- concatenation = “charlie” + “brown” //”charliebrown”
+- length property = tells you how many characters including letters, numbers, space
+- individual access = tells the value of x place
 
-PROMPT
-SYNTAX prompt(“what is your name?”)
--will ask user a question
--var userName = prompt(“what is your name?”) = this is store name of whatever is typed
-Writing JavaScript in a Separate File
-08 Including Scripts
--link javascript file to the html file by
--save it as .js
--use a script tag by typing yourself <script src=”file.js”></script> or use script + tab
+### Primitive Exercises
+[Slides](http://webdev.slides.com/coltsteele/javascript-basics-57#/)
+- 100 % 3
 
-//asks user his or her name 
-//tell user nice to meet you
+###Variables
+[Slides](http://webdev.slides.com/coltsteele/javascript-basics-57#/)
+- variable is a container that has strings in it
+- SYNTAX var yourVariableName = yourValue;
+- javascript should be camelCase
+- camelCase and snake_case, kabab-case
+
+### Null and Undefined
+[Slides](http://webdev.slides.com/coltsteele/javascript-basics-57)
+- null is where something is explicitly empty
+- undefined is where something is not defined yet
+
+### Useful Built-In Methods
+- alert, prompt, console.log
+- SYNTAX javascript use // as commenters
+- SYNTAX clear() is a method to clear the console
+
+### ALERT
+- pops up a message to the user
+- SYNTAX alert(“Hello there!!!”)
+- alert(123135135)
+- alert(198 * 345)
+
+### CONSOLE.LOG
+- SYNTAX console.log(“hello from the console!”)
+- prints only in the console
+
+### PROMPT
+- SYNTAX prompt(“what is your name?”)
+- will ask user a question
+- var userName = prompt(“what is your name?”) = this is store name of whatever is typed
+
+## Writing JavaScript in a Separate File
+- 08 Including Scripts
+
+- link javascript file to the html file by
+- save it as .js
+- use a script tag by typing yourself `<script src=”file.js”></script>` or use script + tab
+
+- asks user his or her name 
+- tell user nice to meet you
+```js
 var userName = prompt(“what is your name?”);
 alert(“nice to meet you, “ + userName);
 console.log(“Also great to meet you, “ + userName);
-JS Stalker Exercise
--covers variables, strings, prompt, and console.log
+```
 
--ask first name, ask last name, ask age, printout full name in a sentence,printout user age in a sentence
-JS Stalker Exercise SOLUTION
-10 Stalker Solution
--can do var fullName = firstName + " " + lastName
-Age Calculator Exercise
-Age Calculator Exercise SOLUTION
-12 Age Calc Solution
--script placement is important
--try in the head and at the end of the body and see!
+## JS Stalker Exercise
+- covers variables, strings, prompt, and console.log
 
--for leap year, var days = age * 365.25;
+- ask first name, ask last name, ask age, printout full name in a sentence,printout user age in a sentence
+
+## JS Stalker Exercise SOLUTION
+- 10 Stalker Solution
+- can do var fullName = firstName + " " + lastName
+
+## Age Calculator Exercise
+## Age Calculator Exercise SOLUTION
+- 12 Age Calc Solution
+
+- script placement is important
+- try in the head and at the end of the body and see!
+
+- for leap year, var days = age * 365.25;
 
 # Section 9: Javascript Basics Control Flow
-OBJECTIVES
-Evaluate complex logical expressions
-Write 3-part JS conditional statements
-Write JS while loops and for loops
-Translate between while and for loops
-Boolean Logic
-Slides
--has only true or false used in statements 
+- OBJECTIVES
+1. Evaluate complex logical expressions
+2. Write 3-part JS conditional statements
+3. Write JS while loops and for loops
+4. Translate between while and for loops
 
-COMPARISON OPERATORS
-== is a type coercion while === does not
-Use triple equals because it is much safer and more specific
+##Boolean Logic
+- Slides
 
-True == “1” //true
-0 == false //true
-Null == undefined //true
-NaN == NaN //false
-Logical Operators
-Slides
--ways to chain together operators
-&& AND = has left and right side, requires both sides to be true
-|| OR = has left and right side, requires only one side to be true
-! NOT = has one side, it negates whatever you put in
+- has only true or false used in statements 
 
-EXERCISE 1
--left side false, right side is true
+- COMPARISON OPERATORS
+- == is a type coercion while === does not
+- Use triple equals because it is much safer and more specific
 
-EXERCISE 2
--left side is false, right side if true = whole statement is false
+- True == “1” //true
+- 0 == false //true
+- Null == undefined //true
+- NaN == NaN //false
 
-TRUTHY AND FALSY VALUES
-!”Hello World” true
-!”” falsy
-!null falsy
-!0 falsy
-!-1 truthy
-!NaN falsy
+##Logical Operators
+- Slides
+- ways to chain together operators
+- `&&` AND = has left and right side, requires both sides to be true
+- || OR = has left and right side, requires only one side to be true
+- ! NOT = has one side, it negates whatever you put in
 
-Falsy Values: false, 0, “”, null, undefined, NaN
-EVERYTHING ELSE IS TRUTHY
+- EXERCISE 1
+- left side false, right side is true
 
-EXERCISE 3
--left side false and truthy (true), right side is (true) = false
-Conditionals
--they are the one way you add logic to your programming
--3 keywords: If, Else If, Else
+- EXERCISE 2
+- left side is false, right side if true = whole statement is false
 
-BOUNCER EXAMPLE
-If you are younger than 18, you cannot enter the venue
-If you are older than 18 and younger than 21, you can enter but not drink
-If you are older than 21, you can do both
+- TRUTHY AND FALSY VALUES
+- !”Hello World” true
+- !”” falsy
+- !null falsy
+- !0 falsy
+- !-1 truthy
+- !NaN falsy
 
-Special operators for 21, odd, negative, and square root number
-Conditionals Exercise SOLUTION
+- Falsy Values: false, 0, “”, null, undefined, NaN
+- EVERYTHING ELSE IS TRUTHY
+
+- EXERCISE 3
+- left side false and truthy (true), right side is (true) = false
+
+## Conditionals
+- they are the one way you add logic to your programming
+- 3 keywords: If, Else If, Else
+
+- BOUNCER EXAMPLE
+- If you are younger than 18, you cannot enter the venue
+- If you are older than 18 and younger than 21, you can enter but not drink
+- If you are older than 21, you can do both
+
+- Special operators for 21, odd, negative, and square root number
+
+## Conditionals Exercise SOLUTION
+- If age is negative
+```js
 // If age is negative
 if(age < 0) {
 console.log("Come back once you're out of the womb");
@@ -1186,59 +1229,67 @@ console.log("Your age is odd!");
 if(age % Math.sqrt(age) === 0) {
  console.log("Your age is a perfect square!");
 }
-Guessing Game Code Along
-03 Guessing Game
-SYNTAX typeof to tells you what type of conditional it is
-SYNTAX Number(guess) will convert the guess into the number which helps you keep ===
+```
 
-SYNTAX can add Number() to the prompt so you don’t have to type it out so much
-IE var guess = Number(prompt(“Guess a number”));
+## Guessing Game Code Along
+- 03 Guessing Game
+- SYNTAX typeof to tells you what type of conditional it is
+- SYNTAX Number(guess) will convert the guess into the number which helps you keep ===
 
-Or you can do 2 lines:
+- SYNTAX can add Number() to the prompt so you don’t have to type it out so much
+- IE var guess = Number(prompt(“Guess a number”));
 
-Var stringGuess = prompt(“Guess a number”);
-Var guess = Number(stringGuess);
-Note about Introduction to Loops lecture
+- Or you can do 2 lines:
+
+- Var stringGuess = prompt(“Guess a number”);
+- Var guess = Number(stringGuess);
+
+## Note about Introduction to Loops lecture
 Hi Everyone!
 In the next lecture there is a typo in the slides at 8 minutes and 9 seconds, the slides should say that an infinite loop occurs when the terminating condition never returns false.
 
 Thanks,
 Ian
 Course TA
-Introduction to Loops
-Slides
-Understand the purpose of loops
-Define DRY code
-Write simple while loops
 
--what if you want to write 1-10,000 lines?
+## Introduction to Loops
+- Slides
+- Understand the purpose of loops
+- Define DRY code
+- Write simple while loops
 
-DRY = don’t repeat yourself
--it saves us time and keeps code clean
-WET = write everything dry
+- what if you want to write 1-10,000 lines?
 
-SYNTAX while(someCodition) {}
--like an if statement
+- DRY = don’t repeat yourself
+- it saves us time and keeps code clean
+- WET = write everything dry
 
-INFINITE LOOPS
--like if you do 0 < 10 but never increase count to add one, it would never end
-3 While Loop Exercises
-EXERCISE 1
--runs out odd numbers of 1 to 10
-1,3,5,7,9
--11 will not print but it shows that it was the last value evaluated
+- SYNTAX while(someCodition) {}
+- like an if statement
 
-EXERCISE 2
--will print out all multiples of 4
-4,8,12,16,20
+- INFINITE LOOPS
+- like if you do 0 < 10 but never increase count to add one, it would never end
 
-EXERCISE 3
--runs subtract one every line and becomes an infinite loop
--all the numbers will always below 150
-While Loops Problem Set
--use while loops to get the answer
-While Loops Problem Set SOLUTIONS
-07 While Loops Problems Solutions
+##3 While Loop Exercises
+- EXERCISE 1
+- runs out odd numbers of 1 to 10
+- 1,3,5,7,9
+- 11 will not print but it shows that it was the last value evaluated
+
+- EXERCISE 2
+- will print out all multiples of 4
+- 4,8,12,16,20
+
+- EXERCISE 3
+- runs subtract one every line and becomes an infinite loop
+- all the numbers will always below 150
+
+## While Loops Problem Set
+- use while loops to get the answer
+
+## While Loops Problem Set SOLUTIONS
+- 07 While Loops Problems Solutions
+```js
 //Print all numbers between -10 and 19
 
 //Print all even numbers between 10 and 40
@@ -1246,14 +1297,17 @@ While Loops Problem Set SOLUTIONS
 //Print all odd numbers between 300 and 333
 
 //Print all numbers divisible by 5 AND 3 between 5 and 50
-Annoy-O-Matic Code Along
-08 Annoy O Matic
--ask are we there yet
--keep asking again and again until they enter “yes” OR “yeah”
+```
+
+## Annoy-O-Matic Code Along
+- 08 Annoy O Matic
+- ask are we there yet
+- keep asking again and again until they enter “yes” OR “yeah”
 Then, alert “Yay, we finally made it!”
 
--use .indexOf (“”);
-Note about Intro to For Loops Lecture
+- use .indexOf (“”);
+
+## Note about Intro to For Loops Lecture
 Hi Everyone!
 
 In the following lecture "Intro to For Loops" there is a typo in the slides around the 56 second mark. It should say count = 1 instead of count = 0, since the loop is supposed to go from 1 - 5, not 0 - 5.
@@ -1261,122 +1315,144 @@ In the following lecture "Intro to For Loops" there is a typo in the slides arou
 Thanks!
 Ian
 Course TA
-Intro to For Loops
-Slides
--almost same as while loops but different
 
-SYNTAX for(init; condition; step) {}
+## Intro to For Loops
+- Slides
+- almost same as while loops but different
 
-The variable in for loops exist only inside the loop, unlike having to define it outside with while loops
+- SYNTAX for(init; condition; step) {}
 
--use i, j, or k for variables for For Loops since they are short and exist briefly
-For Loop Quick Exercises
-EXERCISE 1
-Should only run 8
+- The variable in for loops exist only inside the loop, unlike having to define it outside with while loops
 
-EXERCISE 2 
-Spells out hello
-Loops Problem Set
-Assignment Slides
--do the same problem set as while loops
-Loops Problem Set SOLUTION
-12 For Loops Solutions
--forLoops are considerably shorter than whileLoops
+- use i, j, or k for variables for For Loops since they are short and exist briefly
+
+## For Loop Quick Exercises
+- EXERCISE 1
+- Should only run 8
+
+- EXERCISE 2 
+- Spells out hello
+
+## Loops Problem Set
+- Assignment Slides
+- do the same problem set as while loops
+
+## Loops Problem Set SOLUTION
+- 12 For Loops Solutions
+- forLoops are considerably shorter than whileLoops
 
 # Section 10 Javascript Basics: Functions
-Unit Objectives
-Objectives:
-Write function declarations and function expressions
-Explain the difference between console.log and return
-Define functions that take multiple arguments
+- Unit Objectives
+- Objectives:
+1. Write function declarations and function expressions
+2. Explain the difference between console.log and return
+3. Define functions that take multiple arguments
 
--we’ll look for scopes and higher order functions
-Introduction to Functions Slides
-Understand why we use functions
-Define a function without arguments
-Define a function with arguments
-Return a Value
+- we’ll look for scopes and higher order functions
 
--functions let us wrap bits of code up into REUSABLE packages. They are one of the building blocks of JS
--we declare a function and then call it later
+## Introduction to Functions Slides
+1. Understand why we use functions
+2. Define a function without arguments
+3. Define a function with arguments
+4. Return a Value
 
-If you type just sayHi, it will GIVE you the value
-If you type sayHi(), it will EXECUTE it
+- functions let us wrap bits of code up into REUSABLE packages. They are one of the building blocks of JS
+- we declare a function and then call it later
 
--clear() = a function to clear out the JS file
--it helps save us time by not having to type 50 lines of code over and over
-Arguments Slides
--how we write functions with inputs
--he has a function that squares the numbers
--functions can have as many arguments as needed
+- If you type just sayHi, it will GIVE you the value
+- If you type sayHi(), it will EXECUTE it
 
--in JS, if the argument is not entered, it will returned undefined
-The Return Keyword Slides
--often we want a function to send back an output value
--we can have multiple return functions, but only one will run
--as soon as it returns, the function ends
+- clear() = a function to clear out the JS file
+- it helps save us time by not having to type 50 lines of code over and over
 
-CAPITALIZE SYNTAX
--it alters original data to capitalize the first letter
+## Arguments 
+- Slides
 
-FUNCTION TO CAPITALIZE
+- how we write functions with inputs
+- he has a function that squares the numbers
+- functions can have as many arguments as needed
+
+- in JS, if the argument is not entered, it will returned undefined
+
+## The Return Keyword 
+- Slides
+- often we want a function to send back an output value
+- we can have multiple return functions, but only one will run
+- as soon as it returns, the function ends
+
+- CAPITALIZE SYNTAX
+- it alters original data to capitalize the first letter
+
+- FUNCTION TO CAPITALIZE
+```js
 Function capitalize(str) {
 	Return str.charAt(0).toUpperCase() + str.slice(1);
 }
+```
 
-str.charAt(0).toUpperCase() = capitalizes first letter
-str.slice(1) = cuts the rest of the word after the 2nd letter
+`str.charAt(0).toUpperCase()` = capitalizes first letter
+`str.slice(1)` = cuts the rest of the word after the 2nd letter
 
-FUNCTION TO SHORT CIRCUIT NUMBERS
+- FUNCTION TO SHORT CIRCUIT NUMBERS
+```js
 if(typeof str === “number”) {
 	Return “that’s not a string!”
 }
+```
 
-FUNCTION DECLARATION VS FUNCTION EXPRESSION
--declarations are just functions action(argument) {}
--expressions are var action = function(argument) {}
--expressions can be redefined and the original function is lost, declarations have more permanence
-Functions Quiz
-1ST EXERCISE
--understood, answer is 30
+- FUNCTION DECLARATION VS FUNCTION EXPRESSION
+- declarations are just functions action(argument) {}
+- expressions are var action = function(argument) {}
+- expressions can be redefined and the original function is lost, declarations have more permanence
 
-2ND EXERCISE
--the return keyword short circuits the whole function
--the other x/2 line will not run
--answer is 80
-Functions Problem Set
-1st EXERCISE: isEven()
--write a function isEven() which takes a single numeric argument and returns true if the number is even, and false otherwise
+## Functions Quiz
+- 1ST EXERCISE
+- understood, answer is 30
 
-2nd EXERCISE: factorial()
--write a function factorial() which takes a single numeric argument and returns the factorial of that number
+- 2ND EXERCISE
+- the return keyword short circuits the whole function
+- the other x/2 line will not run
+- answer is 80
 
-3rd EXERCISE: kebabToSnake()
--write a function kebabToSnake() which takes a single kebab-cased string argument
-Functions Problem Set: SOLUTIONS Function Problem Set Solutions
-1st EXERCISE: isEven()
--isEven is a built in function in JS
+## Functions Problem Set
+- 1st EXERCISE: isEven()
+- write a function isEven() which takes a single numeric argument and returns true if the number is even, and false otherwise
 
-2nd EXERCISE: factorial()
--can do it 2 ways: 1x2x3x4 or 4x3x2x1
+- 2nd EXERCISE: factorial()
+- write a function factorial() which takes a single numeric argument and returns the factorial of that number
 
-3rd EXERCISE: kebabToSnake()
--make search as general as possible
-Scope Code Along
--scope is the context where the variable is local or global
--inside function, x is defined and is within the scope
--if you try to define x outside the function, it will error
+- 3rd EXERCISE: kebabToSnake()
+- write a function kebabToSnake() which takes a single kebab-cased string argument
 
--if defined globally, function will take global value
--if defined globally and locally, locally will eventually replace global if function is called
-Scope Quiz
--be careful of order, if function is not called, it won’t run
--value of a variable in one function cannot be called upon in another function
-Higher Order Functions Code Along
--you can take functions and use it as an argument in another function
--CS used setInterval (function, interval) with interval being in milliseconds
+## Functions Problem Set: SOLUTIONS 
+- Function Problem Set Solutions
 
--CS also called a function inline of the setInterval function using function() {actions}
+- 1st EXERCISE: isEven()
+- isEven is a built in function in JS
+
+- 2nd EXERCISE: factorial()
+- can do it 2 ways: 1x2x3x4 or 4x3x2x1
+
+- 3rd EXERCISE: kebabToSnake()
+- make search as general as possible
+
+## Scope Code Along
+- scope is the context where the variable is local or global
+- inside function, x is defined and is within the scope
+- if you try to define x outside the function, it will error
+
+- if defined globally, function will take global value
+- if defined globally and locally, locally will eventually replace global if function is called
+
+## Scope Quiz
+- be careful of order, if function is not called, it won’t run
+- value of a variable in one function cannot be called upon in another function
+
+## Higher Order Functions Code Along
+- you can take functions and use it as an argument in another function
+- CS used setInterval (function, interval) with interval being in milliseconds
+
+- CS also called a function inline of the setInterval function using function() {actions}
 
 # Section 11 Javascript Basics: Arrays
 Unit Objectives
@@ -2865,17 +2941,19 @@ app.listen(process.env.PORT, process.env.IP, function(){
 
 # Section 24 Intermediate Express
 - New topics: Templates and EJS
-- We will be working from MoreExpress > EJSDemo
+- Templates are dynamic html files used by EJS with .ejs extension
+- You need to create a directory called "views" for the home.ejs file
+- We will be working from MoreExpress > EJSDemo directory on C9
 - Run npm init, create app.js, npm install express --save
 - typing `c9 <filename>` will open the file for you
-- you can also write html in the res.send("") to style code it but we can use render() method for easier styling
+- you can also write html in the res.send("") to style code it but we can use render() method to render an HTML page for easier styling because you can create a stylesheet for the page
 - IE `res.render("dogs.html")
 - EJS stands for embedded javascript
 
 ### Use res.render() to render HTML(from an EJS file)
 - Rendered from home.ejs and love.ejs
 - Home.ejs should be created in a new folder called views
-- Views folder is a direct name that Express looks for
+- Views folder is a core route name that Express looks for
 ```js
 // app.js
 var express = require("express");
@@ -2895,12 +2973,12 @@ app.get("/fallinlovewith/:thing", function(req, res){
 
 app.get ("/posts", function(req, res){
     var posts = [
-        {title: "Post 1", author: "Susy"},
-        {title: "My adorable pet bunny", author: "Charlie"},
-        {title: "Can you believe this pomsky?", author: "Colt"},
-        ];
-        
-        res.render("posts", {posts: posts});
+      {title: "Post 1", author: "Susy"},
+      {title: "My adorable pet bunny", author: "Charlie"},
+      {title: "Can you believe this pomsky?", author: "Colt"},
+    ];
+      
+    res.render("posts", {posts: posts});
 })
 
 app.listen(process.env.PORT, process.env.IP, function(){
@@ -2934,9 +3012,6 @@ app.listen(process.env.PORT, process.env.IP, function(){
 <% include partials/footer %>
 ```
 
-- Templates are dynamic html files used by EJS with .ejs extension
-- You need to create a directory called "views" for the home.ejs file
-
 ### Explain what EJS is and why we use it
 - EJS stands for embedded javascript
 - Need to install EJS package with NPM `npm install ejs --save`
@@ -2946,16 +3021,18 @@ app.listen(process.env.PORT, process.env.IP, function(){
 - We created a javascript variable inside an html tag in love.ejs using `<%= %>`
 - Passed an object in res.render call as {thingVar: thing}
 ```js
-Var thing = req.params.thing;
-	res.render(“love.ejs”, {thingVar:thing};
+// app.js
+var thing = req.params.thing;
+	res.render(“love.ejs”, {thingVar: thing};
 ```
 
 - Now thingVar in love.ejs will pull this variable from app.js
-- You can also use `.toUpperCase()` but be careful with cluterring your code
+- You can also use `.toUpperCase()` but be careful with cluterring your code with too many modifiers
 
 ## EJS: Conditionals and Loops
 ### Show examples of control flow in EJS templates
 - Have to wrap all brackets in `<% %>`
+- This code runs the javascript but does not render what's inside
 
 ### Write if statements in an EJS file
 - `<%= %>` results returned will be displayed on page
@@ -3032,7 +3109,7 @@ app.use(express.static(“public”));
 app.set(“view engine”, “ejs”);
 
 app.get("/", function(req, res) {
-	res.render("home"); // instead of home.ejs
+	res.render("home"); // now we can just type the name instead of home.ejs
 })
 ```
 
@@ -3059,7 +3136,7 @@ app.get("/", function(req, res) {
 	</body>
 ```
 
-- So now, we just include the tags on each and every  file
+- So now, we just include the tags on each and every file
 ```js
 // At the top
 <% include partials/header %> 
@@ -3067,7 +3144,8 @@ app.get("/", function(req, res) {
 // At the bottom
 <% include partials/footer %>
 ```
-- Have to change the link path also to /app.css from app.css
+
+- Have to change the link path also to /app.css from app.css also
 - Takeaway: make sure all your paths are correct for linking
 
 ## Post Requests Part 1
@@ -3113,8 +3191,8 @@ app.get("/friends", function(req, res) {
 <% }); %>
 ```
 
-##Post Requests Pt. 2
-- Previously, we were just sending back a res.send, but we actually want to save the input data with a form
+## Post Requests Pt. 2
+- Previously, we were just sending back a res.send(), but we actually want to save the input data with a form
 - Write post routes, and test them with Postman
 - We add a new post request in our app.js
 ```js
@@ -3133,7 +3211,8 @@ app.post("/addfriend", function(req, res) {
 </form>
 ```
 
-- Use a body parser to get form data because not built into EJS, it converts form data into javascript object for us to use
+- Use a body parser to get form data because feature is not built into EJS
+- it converts form data into javascript object for us to use
 - we need install "Body Parser" (npm install body-parser --save)
 - don't forget to add to require and add app.use line
 ```js
@@ -3149,8 +3228,8 @@ app.post("/addfriend", function(req, res) {
 ```
 
 - To add it to the new array, we can just push
-- We need to make the array top level
-- We won't have to worry about it later because we will use a database
+- We need to make the array top level so it's accessible by scope
+- We won't have to worry about this later because we will use a database
 - Instead res.send(), we can use res.redirect() to get back to the same page
 ```js
 var friends = ["Tony", "Miranda", "Justin", "Pierre", "Lilly"];
@@ -3163,14 +3242,339 @@ app.post("/addfriend", function(req, res) {
 ```
 
 # Section 25 Working with API’s
-Intro to API’s
-JSON and XML
-Making API Requests with Node
-Sunset Time API Example
-Movie API App: Introduction
-Movie API App: Results Route
-Movie API App: Displaying Data
-Movie API App: Adding Search
+## Intro to API’s
+- Opens a world of building amazing things
+- Helps you connect with other apps
+- API is Application Program Interace
+- are interfaces for code/computers to talk to one another
+- For example, Tinder uses some data from Facebook API
+
+- WEB API'S
+- generally communicate with HTTP and specialize in web interfaces like facebook API
+- this is a subset of APIs in general
+- computers use JSON to speak to one another
+- Some other examples:
+1. Twitter API
+2. Facebook API
+3. Weather API
+4. Reddit API
+5. GooglePlaces API
+6. Yelp API
+
+- [IFTTT](https://ifttt.com/) is a visually interface to connect visual APIs
+- [ProgrammableWeb](https://www.programmableweb.com/) is a API library
+- [Tesla Model S JSON API](https://timdorr.docs.apiary.io/#) also allows to to get data from a Tesla car
+
+## JSON and XML
+- A human interface to iTunes is different from iTunes API
+- You have to read the docs to learn about how to use each API
+- If you make an HTTP request to an API, you get data back
+
+- DATA formates
+- API's don't respond with HTML
+- HTML returns information about the structure of the page
+- API's respond with data, not structure
+- The simpler data formats are XML and JSON
+
+- XML 
+- stands for extended markup language
+- syntacticly similar to HTML but doesn't describe presentation like HTML does
+```xml
+<person>
+  <age>21</age>
+  <name>Travis</name>
+  <city>Los Angeles</city>
+</person>
+```
+
+- JSON
+- stands for javascript object notation
+- looks exactly like javascript objects, but everything is a string
+- You do need quotes around the keys
+```js
+{
+  "person": {
+    "age": "21",
+    "name": "Travis",
+    "city": "Los Angeles"
+  }
+}
+```
+
+- XML was used more than JSON, but now JSON now is more popular
+- There are other data formats as well
+- Most new things have JSON being used, rare to find XML usage
+
+- YAHOO WEATHER API
+- lets you view JSON and XML responsea and see endpoints
+
+- JSONVIEW
+- a chrome extension that lets you easily view JSON data
+- you can also find a JSON viewer online and it will format it for you
+
+## Making API Requests with Node
+- Review how to make HTTP request
+1. You can use a browser
+2. You can also do it through code
+
+- cURL
+- a way to make requests through a command line
+`curl http://www.google.com`
+- You can also use it on API endpoint web addresses
+- still not the usually way we do it
+
+- [REQUEST](https://github.com/request/request)
+- a simplified HTTP request client
+- use `npm install request`
+- a request can take time so you need to do a callback function
+```js
+var request = require('request');
+request('http://www.google.com', function (error, response, body) {
+  console.log('error:', error); // Print the error if one occurred
+  console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+  console.log('body:', body); // Print the HTML for the Google homepage.
+});
+```
+
+- There are also many status codes like 404 or 200
+- 200 means okay or successful response
+- 404 means page not found
+- If you make a request to a bad address, the return will give you an error
+```js
+var request = require('request');
+
+request('http://www.google.com', function(error, response, body){
+    if (error) {
+        console.log("Something went wrong!");
+        console.log(error);
+    } else {
+        if (response.statusCode === 200) {
+            console.log(body)
+        }
+    }
+})
+```
+
+## Sunset Time API Example
+- We are going to use the yahoo weather api to get sunset time in Hawaii
+- We can use `typeof` to confirm that the response is a string
+- We us `JSON.parse()` to parse a json return
+```js
+request('https://query.yahooapis.com/v1/public/yql?q=select%20astronomy.sunset%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22maui%2C%20hi%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys', function(error, response, body){
+    if (!error && response.statusCode === 200) {
+        console.log(body);
+    }
+})
+```
+
+- We us `JSON.parse()` to parse a json return
+```js
+console.log("Sunset in Hawaii is at...");
+request('https://query.yahooapis.com/v1/public/yql?q=select%20astronomy.sunset%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22maui%2C%20hi%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys', function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+        var parsedData = JSON.parse(body);
+        console.log(parsedData["query"]["results"]["channel"]["astronomy"]["sunset"]);
+    }
+})
+```
+
+## Note about Movie API lectures
+Hi Everyone!
+
+The Open Movie Data Base Movie API that we'll be using the next set of lectures has recently gone private. 
+
+In response to this, Colt has acquired an API key for everyone to use.
+
+Here's the new way of making requests with the key:
+
+General search: http://www.omdbapi.com/?s=guardians+of+the+galaxy&apikey=thewdb 
+
+Search with Movie ID: http://www.omdbapi.com/?i=tt3896198&apikey=thewdb 
+
+So everything is exactly the same as Colt explains in the following videos, except you must append &apikey=thewdb to the end of your url.
+
+Keep me posted with any questions.
+
+Thanks,
+Ian
+
+## Movie API App: Introduction
+- Starting a new app that contains movie data
+- [OMDB](https://www.omdbapi.com/) is an open API that we can get movie data from
+- It's a free API
+- We will have a search form that search for a movie that users search
+
+- SETUP
+- Made a new folder movie_search_app folder 
+- npm init
+- npm install --save express ejs request
+
+- WORKING WITH API
+- we can look at docs
+- we can search by id or do search
+- some parameters are mandatory, while others are optional
+- we need parameter "s" for general search: `http://www.omdbapi.com/?s=guardians+of+the+galaxy&apikey=thewdb `
+`https://www.omdbapi.com/?apikey=thewdb&s=star`
+
+- we can also use "i" for specific movies:
+`https://www.omdbapi.com/?apikey=thewdb&i=tt0076759`
+`http://www.omdbapi.com/?i=tt3896198&apikey=thewdb` 
+
+- WORKING WITH API'S MODIFIERS
+- like add `plot=short` or `plot=long`
+- there is also type (movie, series, episode) or r (json, xml)
+
+## Movie API App: Results Route
+- We start by putting in the require()'s and port listens
+```js
+var express = require("express");
+var app = express();
+var request = require("request");
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("Movie App has started!!!");
+});
+```
+
+- Then test our request, I did "Virginia"
+- But remember, you need to parse the body to a JSON object since it is a JSON string
+
+```js
+var express = require("express");
+var app = express();
+var request = require("request");
+
+app.get("/results", function(req, res) {
+    request("https://omdbapi.com/?apikey=thewdb&s=virginia", function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          var results = JSON.parse(body)
+          res.send(results["Search"][0])
+        }
+    })
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("Movie App has started!!!");
+});
+```
+
+## Movie API App: Displaying Data
+- Now we will take the results data and display it with HTML
+- we first set up the ejs engine
+- then we make a views folder> results.ejs
+- then do a res.render("results", {data: data})
+```js
+var express = require("express");
+var app = express();
+var request = require("request");
+app.set("view engine", "ejs");
+
+app.get("/results", function(req, res) {
+    request("https://omdbapi.com/?apikey=thewdb&s=virginia", function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          var data = JSON.parse(body)
+          res.render("results", {data: data});
+        }
+    })
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("Movie App has started!!!");
+});
+```
+
+- using JSON viewer will help us to write a for loop for the object
+```js
+<h1>Results!!!</h1>
+
+<% data["Search"].forEach(function(movie) { %>
+  <li><%= movie["Title"] %></li>
+<% }) %>
+```
+
+## Movie API App: Adding Search
+- Now we are setting up a search route so users can search
+- Now we are making a root path for the search page
+- make search.ejs in views folder
+```js
+var express = require("express");
+var app = express();
+var request = require("request");
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res){
+  res.render("search");
+});
+
+app.get("/results", function(req, res) {
+    request("https://omdbapi.com/?apikey=thewdb&s=virginia", function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          var data = JSON.parse(body)
+          res.render("results", {data: data});
+        }
+    })
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("Movie App has started!!!");
+});
+```
+
+- In search.ejs
+- we use the name attribute to identify the input
+```js
+// views/search.ejs
+<h1>Search For a Movie</h1>
+
+<form action="/results" method="GET">
+  <input type="text" placeholder="search term" name="search">
+  <input type="submit">
+</form>
+```
+
+- Then back to app.js, we need to grab the data from the form
+
+```js
+var express = require("express");
+var app = express();
+var request = require("request");
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res){
+  res.render("search");
+});
+
+app.get("/results", function(req, res) {
+    var query = req.query.search;
+    var url = "http://omdbapi.com/?s=" + query;
+    
+    request(url, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+          var data = JSON.parse(body)
+          res.render("results", {data: data});
+        }
+    })
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("Movie App has started!!!");
+});
+```
+
+- We are going to try to add some more data, like movie year
+```js
+<h1>Results!!!</h1>
+
+<% data["Search"].forEach(function(movie) { %>
+  <ul>
+    <li>
+      <strong><%= movie["Title"] %></strong> - <%= movie["Year"] %>
+    </li>
+  </ul>
+<% }) %>
+
+<a href="/">Search Again!</a>
+```
 
 # Section 26 YelpCamp: Basics
 YelpCamp: Initial Routes
