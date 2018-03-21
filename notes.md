@@ -3520,7 +3520,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 });
 ```
 
-- In search.ejs
+- In search.js
 - we use the name attribute to identify the input
 ```js
 // views/search.ejs
@@ -3533,7 +3533,6 @@ app.listen(process.env.PORT, process.env.IP, function(){
 ```
 
 - Then back to app.js, we need to grab the data from the form
-
 ```js
 var express = require("express");
 var app = express();
@@ -3546,14 +3545,14 @@ app.get("/", function(req, res){
 
 app.get("/results", function(req, res) {
     var query = req.query.search;
-    var url = "http://omdbapi.com/?s=" + query;
+    var url = "http://omdbapi.com/?apikey=thewdb&s=" + query;
     
     request(url, function(error, response, body) {
         if (!error && response.statusCode === 200) {
-          var data = JSON.parse(body)
+          var data = JSON.parse(body);
           res.render("results", {data: data});
         }
-    })
+    });
 });
 
 app.listen(process.env.PORT, process.env.IP, function(){
@@ -3563,6 +3562,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 
 - We are going to try to add some more data, like movie year
 ```js
+// views/results.js
 <h1>Results!!!</h1>
 
 <% data["Search"].forEach(function(movie) { %>
@@ -3577,93 +3577,921 @@ app.listen(process.env.PORT, process.env.IP, function(){
 ```
 
 # Section 26 YelpCamp: Basics
-YelpCamp: Initial Routes
-YelpCamp: Layout
-YelpCamp: Creating Campgrounds
-Note about YelpCamp: Styling Campgrounds Lecture
-YelpCamp: Styling Campgrounds
-YelpCamp: Styling Nav and Forms
+## YelpCamp: Initial Routes
+- Objectives:
+1. Landing Page
+2. Add Campgrounds Page that lists all campgrounds
+- we are still in V1
+- Each campground has: Name, Image
+- The campgrounds will be an array, object structure
+- Colt will be having different versions so we can follow
+
+- SETUP
+- created "YelpCamp" project folder
+- run NPM init
+- run `npm install --save express ejs`
+- create app.js file and add boilerplate for app.js 
+```js
+var express = require("express");
+var app = express();
+
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res){
+  res.send("landing");
+})
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- ADDING LANDING PAGE
+- make a views folder
+- add landing.ejs file with boilerplate
+```html
+<!-- views/landing.ejs -->
+<h1>Landing Page!</h1>
+<p>Welcome to YelpCamp</p>
+```
+
+- ADDING CAMPGROUNDS
+- used [Photos for Class](http://photosforclass.com/) for images
+```js
+// app.js
+var express = require("express");
+var app = express();
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  var campgrounds = [
+    {name: "Salmon Creek", image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Granite Hill", image: "https://pixabay.com/get/eb3cb60b28f1013ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Mountain Goat's Rest", image: "https://pixabay.com/get/eb30b00d21f0053ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"}
+  ];
+
+  res.render("campgrounds", {campgrounds: campgrounds});
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- ADD CAMPGROUNDS PAGE
+- notice that for the img src, the syntax can be confusing
+- you have to add the quotes because from the string, the quotes don't transfer
+```html
+<!-- views/campgrounds.ejs -->
+<h1>This is the campgrounds page</h1>
+
+<% campgrounds.forEach(function(campground){ %>
+  <div>
+    <h4><%= campground.name %></h4>
+    <img src="<%= campground.image %>">
+  </div>
+<% }); %>
+
+<a href="/">View all campgrounds</a>
+```
+
+## YelpCamp: Layout
+- Objectives
+1. Create our header and footer partial
+2. Add in Bootstrap
+
+- ADD PARTIALS
+- add footer and header ejs files
+```js
+// views/partials/header.ejs
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YelpCamp</title>
+  </head>
+  <body>
+```
+```js
+// views/partials/footer.ejs
+    <p>TradeMark YelpCamp 2018</p>
+  </body>
+</html>
+```
+
+- INCLUDE PARTIALS
+- Do it for the landing page, campground page
+```js
+// views/landing.ejs
+<% include partials/header %>
+
+<h1>Landing Page!</h1>
+<p>Welcome to YelpCamp</p>
+
+<% include partials/footer %>
+```
+
+- INCLUDE BOOTSTRAP CDN
+- add link to header.ejs
+```js
+// views/partials/header.ejs
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YelpCamp</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  </head>
+  <body>
+```
+
+## YelpCamp: Creating Campgrounds
+- OBJECTIVES
+1. Setup new campground POST route
+2. Add in body-parser
+3. Setup route to show form
+4. Add basic unstyled form
+- we are still in V1
+
+- ADDING POST ROUTE
+- we are following a convention called REST
+- added `app.post("/campgrounds", ...)`
+```js
+var express = require("express");
+var app = express();
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  var campgrounds = [
+    {name: "Salmon Creek", image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Granite Hill", image: "https://pixabay.com/get/eb3cb60b28f1013ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Mountain Goat's Rest", image: "https://pixabay.com/get/eb30b00d21f0053ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"}
+  ];
+
+  res.render("campgrounds", {campgrounds: campgrounds});
+});
+
+app.post("/campgrounds", function(req, res){
+
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- INSTALL BODY-PARSER
+- `npm install body-parser --save`
+- add 
+```js
+var bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+```
+- to app.js
+```js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  var campgrounds = [
+    {name: "Salmon Creek", image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Granite Hill", image: "https://pixabay.com/get/eb3cb60b28f1013ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Mountain Goat's Rest", image: "https://pixabay.com/get/eb30b00d21f0053ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"}
+  ];
+
+  res.render("campgrounds", {campgrounds: campgrounds});
+});
+
+app.post("/campgrounds", function(req, res){
+  res.send("This is the post route");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- CREATE A REST
+- address to wait for submission
+- created new ejs for form submission
+```js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  var campgrounds = [
+    {name: "Salmon Creek", image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Granite Hill", image: "https://pixabay.com/get/eb3cb60b28f1013ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Mountain Goat's Rest", image: "https://pixabay.com/get/eb30b00d21f0053ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"}
+  ];
+
+  res.render("campgrounds", {campgrounds: campgrounds});
+});
+
+app.post("/campgrounds", function(req, res){
+  res.send("This is the post route");
+});
+
+app.get("/campgrounds/new", function(req, res){
+  res.render("new.ejs");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- CREATE REST TEMPLATE
+- Route where the form shows up
+```js
+// views/new.ejs
+<% include partials/header %>
+
+<h1>Create a New Campground</h1>
+
+<form action="/campgrounds" method="POST">
+  <input type="text" name="name" placeholder="name">
+  <input type="text" name="image" placeholder="image url">
+  <button>Submit!</button>
+</form>
+
+<% include partials/footer %>
+```
+
+- RECEIVING FORM DATA
+- add `req.body.name` and `req.body.image` to `app.post()`
+- move campgrounds variable to top as well for scoping
+- we push the data to the array
+- also add redirect to "/campgrounds" route ***default is to the get path, not post
+```js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
+
+var campgrounds = [
+  {name: "Salmon Creek", image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+  {name: "Granite Hill", image: "https://pixabay.com/get/eb3cb60b28f1013ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+  {name: "Mountain Goat's Rest", image: "https://pixabay.com/get/eb30b00d21f0053ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"}
+];
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  res.render("campgrounds", {campgrounds: campgrounds});
+});
+
+app.post("/campgrounds", function(req, res){
+  res.send("This is the post route");
+  var name = req.body.name;
+  var image = req.body.image;
+  var newCampground = {name: name, image: image};
+  campgrounds.push(newCampground);
+  res.redirect("/campgrounds");
+});
+
+app.get("/campgrounds/new", function(req, res){
+  res.render("new.ejs");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- ADD LINK TO ADD NEW CAMPGROUND AND BACK BUTTON ON NEW
+```js
+// views/campgrounds.ejs
+<% include partials/header %>
+
+<h1>This is the campgrounds page</h1>
+
+<a href="/campground/new">Add new campground</a>
+
+<% campgrounds.forEach(function(campground){ %>
+  <div>
+    <h4><%= campground.name %></h4>
+    <img src="<%= campground.image %>">
+  </div>
+<% }); %>
+
+<a href="/">View all campgrounds</a>
+
+<% include partials/footer %>
+```
+```js
+// views/new.ejs
+<% include partials/header %>
+
+<h1>Create a New Campground</h1>
+
+<form action="/campgrounds" method="POST">
+  <input type="text" name="name" placeholder="name">
+  <input type="text" name="image" placeholder="image url">
+  <button>Submit!</button>
+</form>
+
+<a href="/campgrounds">Go Back</a>
+<% include partials/footer %>
+```
+## Note about YelpCamp: Styling Campgrounds Lecture
+Hi Everyone,
+It has been brought to my attention that in the next lecture there's a slight editing fluke.
+ 
+At 5:11 Colt adds a row div with an h3 that says: "Our Most Popular Campgrounds", but when he "heads back over" at 5:19 it's gone. 
+
+This isn't anything major, but I created this note to alleviate any potential confusion caused by the glitch. 
+
+You can leave the h3 element in there or remove it if you like.
+
+Also, at around 3 minutes and 40 seconds into the video Colt uses the class name btn-large to style the bootstrap button. The class name should actually be: btn-lg
+
+Thanks,
+Ian
+Course TA
+
+## YelpCamp: Styling Campgrounds
+- Objectives:
+1. Add a better header/title
+2. Make campgrounds display in a grid
+
+- STYLING CAMPGROUNDS.EJS
+- Added a lot of bootstrap classes
+- Added inline-style for flexbox
+```js
+// views/campgrounds.ejs
+<% include partials/header %>
+  <div class="container">
+    <header class="jumbotron">
+      <div class="container">
+        <h1>Welcome To YelpCamp!</h1>
+        <p>View our hand-picked campgrounds from all over the world</p>
+        <p>
+          <a class="btn btn-primary btn-lg" href="/campground/new">Add New Campground</a>
+        </p>
+        </div>
+    </header>
+
+    <div class="row text-center" style="display:flex; flex-wrap:wrap">
+      <div class="col-lg-12">
+        <h3>Our Most Popular Campgrounds</h3>
+      </div>
+    </div>
+    
+      <% campgrounds.forEach(function(campground){ %>
+        <div class="col-md-3 col-sm-6">
+          <div class="thumbnail">
+            <img src="<%= campground.image %>">
+            <div class="caption">
+              <h4><%= campground.name %></h4>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+
+    <a href="/">View all campgrounds</a>
+  </div>
+<% include partials/footer %>
+```
+
+- Code in video doesn't work, have to use Bootstrap 4 for latest
+```js
+// Bootstrap 3
+    <div class="row text-center" style="display:flex; justify-content: space-between;">
+      <div class="row">
+        <% campgrounds.forEach(function(campground){ %>
+          <div class="col-md-3 col-sm-6">
+            <div class="thumbnail">
+              <img src="<%= campground.image %>">
+              <div class="caption">
+                <h4><%= campground.name %></h4>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+// Bootstrap 4
+    <div class="row text-center">
+      <% campgrounds.forEach(campground => { %>
+        <div class="col-md-4 col-sm-6">
+          <div class="card img-thumbnail" style="width: 18rem;">
+            <img class="card-img-top" src=<%= campground.image %>>
+               <div class="card-body">
+                 <h4 class="card-text"><%= campground.name %></h4>
+               </div>
+             </div>
+          </div>
+      <% }) %>
+    </div>
+```
+
+## YelpCamp: Styling Nav and Forms
+- Objectives
+1. Add a navbar to all templates
+2. Style the new campground form
+
+- ADD NAVBAR
+- Again, code is using Bootstrap 3 and not 4
+- added a navbar, login, and signup
+```js
+// views/campgrounds.ejs
+<% include partials/header %>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Yelpcamp</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/">Login</a></li>
+          <li><a href="/">Signup</a></li>
+          <li><a href="/">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="jumbotron">
+      <div class="container">
+        <h1>Welcome To YelpCamp!</h1>
+        <p>View our hand-picked campgrounds from all over the world</p>
+        <p>
+          <a class="btn btn-primary btn-lg" href="/campground/new">Add New Campground</a>
+        </p>
+      </div>
+    </header>
+
+    <div class="col-lg-12">
+      <h3>Our Most Popular Campgrounds</h3>
+    </div>  
+    
+    <div class="row text-center">
+      <% campgrounds.forEach(campground => { %>
+        <div class="col-md-4 col-sm-6">
+          <div class="card img-thumbnail" style="width: 18rem;">
+            <img class="card-img-top" src=<%= campground.image %>>
+               <div class="card-body">
+                 <h4 class="card-text"><%= campground.name %></h4>
+               </div>
+             </div>
+          </div>
+      <% }) %>
+    </div>
+    
+    <a href="/">View all campgrounds</a>
+  </div>
+  
+<% include partials/footer %>
+```
+
+- ADD TO HEADER PARTIAL
+```js
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YelpCamp</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  </head>
+  <body>
+
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Yelpcamp</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/">Login</a></li>
+          <li><a href="/">Signup</a></li>
+          <li><a href="/">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+```
+
+- EDITING THE FORM
+- stack fields vertically and center text
+- put in container to center
+```js
+// views/new.ejs
+<% include partials/header %>
+  <div class="container">
+    <div class="row">
+      <h1 style="text-align: center;">Create a New Campground</h1>
+      <div style="width: 30%; margin: 25px auto;">
+        <form action="/campgrounds" method="POST">
+          <div class="form-group">
+            <input class="form-control" type="text" name="name" placeholder="name">
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" name="image" placeholder="image url">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-lg btn-primary btn-block">Submit!</button>
+          </div>
+        </form>
+        <a href="/campgrounds">Go Back</a>
+      </div>
+    </div>
+  </div>
+<% include partials/footer %>
+```
+
+- REMOVE TRADEMARK FOOTER
+```html
+  </body>
+</html>
+```
 
 # Section 27 Databases
-What is a Database?
-Note about installing and running MongoDB
-Installing MongoDB
-Mongo Shell Basics
-Introduction to Mongoose Pt. 1
-Introduction to Mongoose Pt. 2
+## What is a Database?
+- Objectives:
+1. What is a database?
+- A collection of information/data
+- Has an interface
+- the syntax we are using
+```js
+db.dogs.find()
+db.dogs.delete({age: 14})
+```
+
+2. SQL (relational) vs NoSQL (non-relational)
+- RELATIONAL DATABASE
+- there's a user table with id, name, age, city column titles
+- the user data follows under each column
+- the problem is that you have to add data for every user like if you added favorite color
+
+- Then there's a comments table with a comment in each row
+- but then you need a user/comments join table to connect the 2 tables
+
+- NON-RELATIONAL DATABASE
+- there are no tables and things can be nested
+- things can be nested
+- we use BSON, but structurally like Javascript Objects
+- new comments can be nested under the comments object key
+- just because it is more flexible does not inherently make it better
+- it just depends on what you need
+
+## Note about installing and running MongoDB
+IMPORTANT UPDATE!!!
+Hi Everyone!
+
+Since the update of MongoDB to 3.6 there have been a few changes to the installation process.
+
+Now, in order to get it working you'll need to run the following commands:
+
+`sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5`
+`echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list`
+`sudo apt-get update
+sudo apt-get install -y mongodb-org
+You should now have mongo 3.6.2 or newer, you can double check with mongo --version 
+`
+Now type cd in the terminal and hit enter to go into the root directory ~
+
+Enter the following:
+
+`mkdir data
+echo "mongod --dbpath=data --nojournal" > mongod
+chmod a+x mongod`
+Now, in order to run mongod you'll first need to cd into root ~ then run ./mongod 
+
+Note: You no longer need to follow/enter the commands in the next video, as the ones you just entered from above will have replaced them
+
+----------------------
+
+Additionally, after you're up and running with mongo, be sure to shut down your ./mongod server each time you're done working. You can do this with ctrl + c 
+
+If you leave it running then Cloud 9 could timeout and cause mongo to crash. If this happens, try the following steps to repair it. 
+
+From the command line, run:
+
+cd ~
+./mongod --repair
+If you're still having trouble getting it to run then find the /data directory (it should be inside of ~) and cd into it. Once inside, run rm mongod.lock then cd back into ~ and run ./mongod again (see below).
+
+cd ~/data
+rm mongod.lock
+cd
+./mongod
+If you continue to have difficulties with this then please open up a new discussion so we can assist you.
+
+As a side note: In the [Mongo Shell Basics](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/t/lecture/3861646?start=245) video you'll see Colt use the show collections command which will show something called system.indexes . This will no longer show up in the latest versions of MongoDB. You can read more about this [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3006944).
+
+
+-------
+Thanks,
+Ian
+[Learn more](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
+
+## Installing MongoDB
+- Objectives:
+1. What is MongoDB?
+- [mongodb.org](https://www.mongodb.com/)
+- it is a non-relational database
+- Mongo, Express, Angular, Node is a popular stack
+
+2. Why are we using it?
+- has really good tools for an express app
+- there are many databases we can use
+
+3. Let's install it!
+- Use the instructions from the note
+- You can run the Mongo shell by running `mongo` in the terminal
+
+## Mongo Shell Basics
+### Our First Mongo Commands
+- CRUD - create, read, update, delete
+1. mongod
+- to start the mongo server
+
+2. mongo
+- opens up the shell to debug
+
+3. help
+- gives us basic list of commands
+
+4. show dbs
+- shows all the databases
+- admin and local are 2 default databases
+
+5. use
+- we don't have to declare before, it will create if non-existant database
+- else will use an exisiting database
+
+6. insert 
+- we don't have to declare before, it will create if non-existant
+- else will use an exisiting database
+- db refers to db demo
+- dogs refers to the collection
+- insert will push the information into the database
+`db.dogs.insert({name: "Rusty", breed: "Mutt"});`
+- we can show the collections by running `show collections`
+
+7. find
+- NO ARGUMENT
+- we can use `db.dogs.find()` to show all the dogs
+- it has _id, name, and breed
+- _id is automatically assigned and unique
+- useful for refer to specific items
+
+- WITH ARGUMENT
+- use `db.dogs.find({name: "Rusty"})
+- pass in an argument to find the specific item
+
+8. update
+- use `db.dogs.update({name: "Lulu", breed: "Labradoodle"}) or db.dogs.update({breed: "Poodle", breed: "Labradoodle"})
+- to prevent rewriting of the whole object, use `db.dogs.update({name: "Rusty"}, {$set: {name: "Tater", isCute: true}})
+- using `$set` will preserve what's in the object
+
+9. remove
+- use `db.dogs.remove({name: "Lulu"})` or `db.dogs.remove({breed: "Labradoodle"})
+- `remove` will remove all instances unless specified with `db.dogs.remove({breed: "Mutt"}).limit(1, 2, etc.)
+
+## Note about mongoose promise library
+Hi Everyone,
+
+In the next few lectures you will learn about an Object Document Modeling (ODM) package for Express called Mongoose.
+
+You may run into two different warnings in your terminal regarding the deprecation of mpromise and open(), they will look like this:
+
+Mongoose: mpromise (mongoose's default promise library) is deprecated, plug in your own promise library
+instead: http://mongoosejs.com/docs/promises.html
+and this:
+
+`open()` is deprecated in mongoose >= 4.11.0, use `openUri()` instead, 
+or set the `useMongoClient` option if using `connect()` or `createConnection()`
+Neither of these warnings should happen anymore if you're using MongoDB 3.6.2 (latest version as of today) and Mongoose 5.0.0-rc2 (also the latest version) see [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3454522) for instructions on how to update if you don't already have the latest versions of both MongoDB and Mongoose.
+
+*Note: You may want to bookmark this lecture and come back to it if you run into either of the warnings mentioned above
+
+cheers,
+Ian
+
+## Introduction to Mongoose Pt. 1
+- Objectives:
+1. What is Mongoose?
+- an ODM (Oject Document Mapper) is a way to write javascript that will interact with mongodb
+- an elegant mongodb object modeling for node.js
+- a package from npm which we use to interact with mongodb database
+
+2. Why are we using it?
+- this makes it easy to interact with the mongodb database but not necessary
+
+3. Interact with a Mongo Database using Mongoose
+- SETUP
+- made a database folder in our workspace
+- made a cat.js file inside
+- we add schema to define what our data looks like
+- saving it to a model lets you gain access to the methods
+- model should be the singular version of the model and uppercase by conventional standard
+```js
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/cat_app");
+
+var catSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  temperament: String
+});
+
+var Cat = mongoose.model("Cat", catSchema);
+```
+
+## Introduction to Mongoose Pt. 2
+- SAVING TO A DATABASE
+- running .save() saves it to the database
+- optional callback to display results from that save process
+```js
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/cat_app");
+
+var catSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  temperament: String
+});
+
+var Cat = mongoose.model("Cat", catSchema);
+
+var george = new Cat({
+  name: "George",
+  age: 11,
+  temperament: "Grouchy"
+})
+
+george.save(function(err, cat){
+  if(err){
+    console.log("Something went wrong");
+  } else {
+    console.log("We just saved a cat to the database");
+    console.log(cat);
+  }
+});
+```
+
+- VIEW ENTRY IN DATABASE
+- run `mongo`, `show dbs`, `show collections`, `db.cats.find()`
+- consoling cat is what comes back from database, consoling george was the javascript object we pushed to database
+
+- ADDING ANOTHER ENTRY
+```js
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/cat_app");
+
+var catSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  temperament: String
+});
+
+var Cat = mongoose.model("Cat", catSchema);
+
+var george = new Cat({
+  name: "Mrs. Morris",
+  age: 7,
+  temperament: "Evil"
+})
+
+george.save(function(err, cat){
+  if(err){
+    console.log("Something went wrong");
+  } else {
+    console.log("We just saved a cat to the database");
+    console.log(cat);
+  }
+});
+```
+
+- RETREIVING ALL CATS FROM DB AND CONSOLE EACH
+- 
+```js
+Cat.find({}, function(err, cats){
+  if(err){
+    console.log("Oh no, error");
+    console.log(err);
+  } else {
+    console.log("All the cats: ");
+    console.log(cats);
+  }
+})
+```
+
+- ANOTHER METHOD TO CREATE CAT
+- use the create method, which is new and save in one step
+- we can add optional callback
+```js
+Cat.create({
+  name: "Snow White",
+  age: 15,
+  temperament: "Bland"
+}, function(err, cat){
+  if(err){
+    console.log(err);
+  } else {
+    console.log(cat);
+  }
+});
+```
 
 # Section 28 YelpCamp: Data Persistance
-YelpCamp: Adding Mongoose
-YelpCamp: Campground Show Page Part 1
-YelpCamp: Campground Show Page Part 2
+## YelpCamp: Adding Mongoose
+## YelpCamp: Campground Show Page Part 1
+## YelpCamp: Campground Show Page Part 2
 
 # Section 29 RESTful Routing
-Intro to REST
-RESTful Blog App: INDEX
-Blog App: Layout
-RESTful Bloog App: NEW and CREATE
-RESTful Bloog App: SHOW
-RESTful Bloog App: EDIT AND UPDATE
-RESTful Bloog App: DESTROY
-RESTful Bloog App: Final Touches
+## Intro to REST
+## RESTful Blog App: INDEX
+## Blog App: Layout
+## RESTful Bloog App: NEW and CREATE
+## RESTful Bloog App: SHOW
+## RESTful Bloog App: EDIT AND UPDATE
+## RESTful Bloog App: DESTROY
+## RESTful Bloog App: Final Touches
 
 # Section 30 Data Associations
-Introduction to Associations
-Embedded Data
-Object References
-Module.exports
+## Introduction to Associations
+## Embedded Data
+## Object References
+## Module.exports
 
 # Section 31 YelpCamp: Comments
-YelpCamp: Refactoring App.js
-YelpCamp: Seeding the Database
-Note about comment model lecture
-YelpCamp: Comment Model
-YelpCamp: Creating Comments Pt. 1
-YelpCamp: Creating Comments Pt. 2
-YelpCamp: Styling Comments Pt 1
-YelpCamp: Styling Comments Pt 2
+## YelpCamp: Refactoring App.js
+## YelpCamp: Seeding the Database
+## Note about comment model lecture
+## YelpCamp: Comment Model
+## YelpCamp: Creating Comments Pt. 1
+## YelpCamp: Creating Comments Pt. 2
+## YelpCamp: Styling Comments Pt 1
+## YelpCamp: Styling Comments Pt 2
 
 # Section 32 Authentication
-Note about authentication section
-Introduction to Authentication
-Secret Page Code Along Pt. 1
-Secret Page Code Along Pt. 2
-Secret Page Code Along Pt. 3
-Secret Page Code Along Pt. 4
-Secret Page Code Along Pt. 5
+## Note about authentication section
+## Introduction to Authentication
+## Secret Page Code Along Pt. 1
+## Secret Page Code Along Pt. 2
+## Secret Page Code Along Pt. 3
+## Secret Page Code Along Pt. 4
+## Secret Page Code Along Pt. 5
 
 # Section 33 YelpCamp: Adding Authenication
-YelpCamp: Adding Auth Pt. 1
-YelpCamp: Adding Auth Pt. 2
-YelpCamp: Adding Auth Pt. 3
-YelpCamp: Adding Auth Pt. 4
-YelpCamp: Adding Auth Pt. 5
+## YelpCamp: Adding Auth Pt. 1
+## YelpCamp: Adding Auth Pt. 2
+## YelpCamp: Adding Auth Pt. 3
+## YelpCamp: Adding Auth Pt. 4
+## YelpCamp: Adding Auth Pt. 5
 
 # Section 34 YelpCamp: Cleaning Up
-YelpCamp: Refactoring Routes
-YelpCamp: User Associations: Comment
-YelpCamp: User Associations: Campground
+## YelpCamp: Refactoring Routes
+## YelpCamp: User Associations: Comment
+## YelpCamp: User Associations: Campground
 
 # Section 35 YelpCamp: Update and Destroy
-Intro to New YelpCamp Features
-Campground Edit and Update
-Campground Destroy
-Campground Authorization Part 1
-Campground Authorization Part 2
-Comment Edit and Update
-Comment Destroy
-Comment Authorization
+## Intro to New YelpCamp Features
+## Campground Edit and Update
+## Campground Destroy
+## Campground Authorization Part 1
+## Campground Authorization Part 2
+## Comment Edit and Update
+## Comment Destroy
+## Comment Authorization
 
 # Section 36 YelpCamp: UI Improvements
-Refactoring Middleware
-Flash Messages: Installation
-Note about Flash Messages
-Flash Messages: Adding Bootstrap
-Flash Messages: Helpful Errors
-Landing Page Refactor - Part One
-Landing Page Refactor - Part Two
-Dynamic Price Feature
-Note about further UI improvements
+## Refactoring Middleware
+## Flash Messages: Installation
+## Note about Flash Messages
+## Flash Messages: Adding Bootstrap
+## Flash Messages: Helpful Errors
+## Landing Page Refactor - Part One
+## Landing Page Refactor - Part Two
+## Dynamic Price Feature
+## Note about further UI improvements
 
 # Section 37: Git and Github
 Intro To Git
