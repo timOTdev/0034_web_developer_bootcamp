@@ -4000,7 +4000,7 @@ Course TA
       <% campgrounds.forEach(campground => { %>
         <div class="col-md-4 col-sm-6">
           <div class="card img-thumbnail" style="width: 18rem;">
-            <img class="card-img-top" src=<%= campground.image %>>
+            <img class="card-img-top" src="<%= campground.image %>">
                <div class="card-body">
                  <h4 class="card-text"><%= campground.name %></h4>
                </div>
@@ -4055,7 +4055,7 @@ Course TA
       <% campgrounds.forEach(campground => { %>
         <div class="col-md-4 col-sm-6">
           <div class="card img-thumbnail" style="width: 18rem;">
-            <img class="card-img-top" src=<%= campground.image %>>
+            <img class="card-img-top" src="<%= campground.image %>">
                <div class="card-body">
                  <h4 class="card-text"><%= campground.name %></h4>
                </div>
@@ -4389,7 +4389,7 @@ george.save(function(err, cat){
 });
 ```
 
-- RETREIVING ALL CATS FROM DB AND CONSOLE EACH
+- RETRIEVING ALL CATS FROM DB AND CONSOLE EACH
 - 
 ```js
 Cat.find({}, function(err, cats){
@@ -4422,8 +4422,551 @@ Cat.create({
 
 # Section 28 YelpCamp: Data Persistance
 ## YelpCamp: Adding Mongoose
+- Objectives: 
+1. Install and configure mongoose
+- install mongoose with `npm install mongoose --save`
+- require `var mongoose = require("mongoose")`
+- setup database with `mongoose.connect("mongodb://localhost/yelp_camp");`
+- test that our db works with `Campground.create()...`
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+
+// Set up schema
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+})
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+var campgrounds = [
+    {name: "Salmon Creek", image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Granite Hill", image: "https://pixabay.com/get/eb3cb60b28f1013ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Mountain Goat's Rest", image: "https://pixabay.com/get/eb30b00d21f0053ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"}
+];
+  
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  res.render("campgrounds", {campgrounds: campgrounds});
+});
+
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var newCampground = {name: name, image: image};
+    campgrounds.push(newCampground);
+    res.redirect("/campgrounds");
+});
+
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+2. Setup campground model
+- we can add new campgrounds by using `Campground.create()...`
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+
+// Set up schema
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+})
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+Campground.create(
+  {
+    name: "Salmon Creek", 
+    image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"
+  }, function(err, campground){
+    if(err){
+      console.log(err);
+    } else {
+      console.log("NEWLY CREATED CAMPGROUND!");
+      console.log(campground);
+    }
+  }
+)
+
+var campgrounds = [
+    {name: "Salmon Creek", image: "https://pixabay.com/get/eb3db30a29fd063ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Granite Hill", image: "https://pixabay.com/get/eb3cb60b28f1013ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"},
+    {name: "Mountain Goat's Rest", image: "https://pixabay.com/get/eb30b00d21f0053ed1584d05fb1d4e97e07ee3d21cac104497f1c47ca0ecb4bd_340.jpg"}
+];
+  
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  res.render("campgrounds", {campgrounds: campgrounds});
+});
+
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var newCampground = {name: name, image: image};
+    campgrounds.push(newCampground);
+    res.redirect("/campgrounds");
+});
+
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+3. Use campground model inside of our routes!
+- CHANGING THE GET ROUTE
+- we can get rid of the campground array and also the Campground.create()
+- now we change our app.get 
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+
+// Set up schema
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+})
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds", {campgrounds: allCampgrounds});
+    }
+  })
+});
+
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var newCampground = {name: name, image: image};
+    campgrounds.push(newCampground);
+    res.redirect("/campgrounds");
+});
+
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- Changing the POST route
+- we post a new campground with variable we made and redirect if successful
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+
+// Set up schema
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+})
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+app.get("/campgrounds", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds", {campgrounds: allCampgrounds});
+    }
+  })
+});
+
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var newCampground = {name: name, image: image};
+    Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+});
+
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
 ## YelpCamp: Campground Show Page Part 1
+- Objectives:
+1. Review the RESTful routes we've seen so far
+- There are 7 routes:
+- name, url, verb = description
+- INDEX, /dogs, GET = Display a list of all dogs
+- NEW, /dogs/new, GET = Display form to make a new dog
+- CREATE, /dogs, POST = Add new dog to database
+- SHOW, /dogs/:id, GET = Shows info about one dog
+
+2. Add description to our campground model
+3. Show db.collection.drop()
+4. Add a show route/template
+- ADD SHOW ROUTE
+- be mindful that it is after the `/campgrounds/new` route, it is technically fitting for `/campgrounds/:id` route
+- find the campground with the provided ID
+- render show template with that campground
+
+- ADD IN NEW SCHEMA and DROP COLLECTION
+- but problem is that existing items don't have description key
+- we can update all items or go destructive with `db.collection.drop()`
+- you will do this occasionally if you don't have imporant information
+- `show dbs`, `use yelp_camp`, `show collections`, `db.campgrounds.find()`, `db.campgrounds.drop()`
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+
+// Set up schema
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String,
+  description: String
+})
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+// INDEX - show all campgrounds
+app.get("/campgrounds", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds", {campgrounds: allCampgrounds});
+    }
+  })
+});
+
+// CREATE - add new campground to DB
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var newCampground = {name: name, image: image};
+    Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+});
+
+// NEW - show form to create new campground
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+// SHOW - shows more info about one campground
+app.get("campgrounds/:id", function(req, res){
+  res.send("This will be the show page");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
 ## YelpCamp: Campground Show Page Part 2
+- we make a new show.ejs file
+```html
+<h1>This is the show template!</h1>
+```
+
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+
+// Set up schema
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String,
+  description: String
+})
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+// INDEX - show all campgrounds
+app.get("/campgrounds", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds", {campgrounds: allCampgrounds});
+    }
+  })
+});
+
+// CREATE - add new campground to DB
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var newCampground = {name: name, image: image};
+    Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+});
+
+// NEW - show form to create new campground
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+// SHOW - shows more info about one campground
+app.get("campgrounds/:id", function(req, res){
+  res.render("show");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- ADDING LINK TO CAMPGROUNDS PAGE FOR EACH CAMPGROUND
+- we renamed the `campgrounds.ejs` to `index.ejs` to fit RESTful convention
+- don't forget to change the app.get for /campgrounds to res.render("index")
+```js
+<% include partials/header %>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Yelpcamp</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/">Login</a></li>
+          <li><a href="/">Signup</a></li>
+          <li><a href="/">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="jumbotron">
+      <div class="container">
+        <h1>Welcome To YelpCamp!</h1>
+        <p>View our hand-picked campgrounds from all over the world</p>
+        <p>
+          <a class="btn btn-primary btn-lg" href="/campgrounds/new">Add New Campground</a>
+        </p>
+      </div>
+    </header>
+
+    <div class="col-lg-12">
+      <h3>Our Most Popular Campgrounds</h3>
+    </div>  
+    
+    <div class="row text-center">
+      <% campgrounds.forEach(campground => { %>
+        <div class="col-md-4 col-sm-6">
+          <div class="card img-thumbnail" style="width: 18rem;">
+            <img class="card-img-top" src="<%= campground.image %>">
+               <div class="card-body">
+                <h4 class="card-text"><%= campground.name %></h4>
+               </div>
+               <p>
+                <a href="/campgrounds/<%= campground._id %>" class="btn btn-primary">More Info</a>
+               </p>
+             </div>
+          </div>
+      <% }) %>
+    </div>
+    
+    <a href="/">View all campgrounds</a>
+  </div>
+  
+<% include partials/footer %>
+```
+
+- ADDING PAGE ID TO APP.JS
+- add description variable from form field with `var desc = req.body.description;`
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+
+// Set up schema
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String,
+  description: String
+})
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+// INDEX - show all campgrounds
+app.get("/campgrounds", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds", {campgrounds: allCampgrounds});
+    }
+  })
+});
+
+// CREATE - add new campground to DB
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var newCampground = {name: name, image: image};
+    Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+});
+
+// NEW - show form to create new campground
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+// SHOW - shows more info about one campground
+app.get("campgrounds/:id", function(req, res){
+  Campground.findById(req.params.id, function(err, foundCampground){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("show", {campground: foundCampground});
+    }
+  });
+  res.render("show");
+});
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- ADD CAMPGROUND INFO TO SHOW
+```html
+<% include partials/header %>
+
+<h1><%= campground.name %></h1>
+<img src="<%= campground.image %>">
+<p><%= campground.description %></p>
+
+<% include partials/footer %>
+```
+
+- ADD DESCRIPTION FIELD TO NEW.EJS
+```js
+<% include partials/header %>
+  <div class="container">
+    <div class="row">
+      <h1 style="text-align: center;">Create a New Campground</h1>
+      <div style="width: 30%; margin: 25px auto;">
+        <form action="/campgrounds" method="POST">
+          <div class="form-group">
+            <input class="form-control" type="text" name="name" placeholder="name">
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" name="image" placeholder="image url">
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" name="description" placeholder="description">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-lg btn-primary btn-block">Submit!</button>
+          </div>
+        </form>
+        <a href="/campgrounds">Go Back</a>
+      </div>
+    </div>
+  </div>
+<% include partials/footer %>
+```
 
 # Section 29 RESTful Routing
 ## Intro to REST
