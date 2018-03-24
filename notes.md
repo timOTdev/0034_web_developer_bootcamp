@@ -4733,11 +4733,12 @@ app.listen(process.env.PORT, process.env.IP, function(){
 ```
 
 ## YelpCamp: Campground Show Page Part 2
-- we make a new show.ejs file
+- we make a new show.ejs file made in views folder
 ```html
 <h1>This is the show template!</h1>
 ```
 
+- now we change to render the show page
 ```js
 var express = require("express");
 var app = express();
@@ -4804,6 +4805,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 - we renamed the `campgrounds.ejs` to `index.ejs` to fit RESTful convention
 - don't forget to change the app.get for /campgrounds to res.render("index")
 ```js
+// partials/index.ejs
 <% include partials/header %>
   <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -4859,6 +4861,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 
 - ADDING PAGE ID TO APP.JS
 - add description variable from form field with `var desc = req.body.description;`
+- also change the SHOW route
 ```js
 var express = require("express");
 var app = express();
@@ -4897,7 +4900,7 @@ app.post("/campgrounds", function(req, res){
     var name = req.body.name;
     var image = req.body.image;
     var desc = req.body.description;
-    var newCampground = {name: name, image: image};
+    var newCampground = {name: name, image: image, description: desc};
     Campground.create(newCampground, function(err, newlyCreated){
       if(err){
         console.log(err);
@@ -4913,7 +4916,7 @@ app.get("/campgrounds/new", function(req, res){
 });
 
 // SHOW - shows more info about one campground
-app.get("campgrounds/:id", function(req, res){
+app.get("/campgrounds/:id", function(req, res){
   Campground.findById(req.params.id, function(err, foundCampground){
     if(err){
       console.log(err);
@@ -4970,13 +4973,1100 @@ app.listen(process.env.PORT, process.env.IP, function(){
 
 # Section 29 RESTful Routing
 ## Intro to REST
+- Objectives:
+1. Define REST and explain WHY it matters
+- REST is a pattern for defining our HTTP routes and CRUD together
+- REST stands for Represenational State Transfer
+
+- BLOG EXAMPLE
+- CREATE
+- READ /allBlogs
+- UPDATE /updateBlog/:id
+- DESTROY /destroyBlog/:id
+
+2. List all 7 RESTful routes
+- Name, Path, HTTP Verb, Purpose
+  1. Index, /dogs, GET, List all dogs
+  2. New, /dogs/new, GET, Show new dog form
+  3. Create, /dogs, POST, Create a new dog, then redirect somewhere
+  4. Show, /dogs/:id, GET, Show info about one specific dog
+  5. Edit, /dogs/:id/edit, GET, Show edit form for one dog
+  6. Update, /dogs/:id/edit, PUT, Update a particular dog, then redirect somewhere
+  7. Destory, /dogs/:id, DELETE, Delete a particular dog, then redirect somewhere
+
+3. Show example of RESTful routing in practice
+- reviewed blog app and yelpcamp app 
+
 ## RESTful Blog App: INDEX
+1. Setup the Blog App
+- we will be using semantic ui
+- INITIAL SETUP
+- `mkdir RESTful Routing`, `cd RESTful Routing`, `mkdir RESTfulBlogApp`, `cd RESTfulBlogApp`, `npm init` > app.js entry point, `npm install express ejs mongoose body-parser --save`, `touch app.js`
+
+2. Create the Blog model
+```js
+// RESTfulBlogApp/app.js
+var express = reuquire("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+3. Add INDEX route and template
+- created new views/index.ejs file
+- also made a root route
+```js
+// RESTfulBlogApp/app.js
+var express = reuquire("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+```js
+// views/index.ejs
+<h1>INDEX PAGE</h1>
+
+<% blogs.forEach(function(blog){ %>
+  <div>
+    <h2><%= blog.title %></h2>
+    <img src="<%= blog.image %=>" >
+    <span><%= blog.created %></span>
+    <p><%= blog.body %></p>
+  </div>
+<% }) %>
+```
+
 ## Blog App: Layout
-## RESTful Bloog App: NEW and CREATE
-## RESTful Bloog App: SHOW
-## RESTful Bloog App: EDIT AND UPDATE
-## RESTful Bloog App: DESTROY
-## RESTful Bloog App: Final Touches
+1. Add Header and Footer Partials
+- added partials and added to index.ejs
+```js
+// views/partials/header.ejs
+<html>
+  <head>
+    <title>Blog App</title>
+  </head>
+  <body>
+    <p>From the header file</p>
+```
+```js
+// views/partials/footer.ejs
+  <p>From the footer file</p>
+  <body>
+</html>
+```
+
+- ADD TO INDEX.EJS
+```js
+// views/index.ejs
+<% include ./partials/header %>
+<h1>INDEX PAGE</h1>
+
+<% blogs.forEach(function(blog){ %>
+  <div>
+    <h2><%= blog.title %></h2>
+    <img src="<%= blog.image %=>" />
+    <span><%= blog.created %></span>
+    <p><%= blog.body %></p>
+  </div>
+<% }) %>
+
+<% include ./partials/footer %>
+```
+
+2. Include Semantic UI
+- [Semantic-UI](https://semantic-ui.com/)
+- add to the header.ejs file
+- semantic version 2.1.4 in course, I have 2.3.1
+```js
+// views/partials/header.ejs
+<html>
+  <head>
+    <title>Blog App</title>
+    <link rel="stylsheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
+  </head>
+  <body>
+```
+
+3. Add Simple Nav
+- Nav bars are called menus in semantic-ui
+- made public/stylsheets directory
+- made public/stylsheets directory/app.css
+```js
+// views/partials/header.ejs
+<html>
+  <head>
+    <title>Blog App</title>
+    <link rel="stylsheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
+    <link rel="stylsheet" type="text/css" href="/stylesheets/app.css">
+  </head>
+  <body>
+
+    <div class="ui fixed inverted menu"></div>
+      <div class="ui container">
+        <div class="header item"><i class="code icon"></i>Blog site</div>
+        <a href="/" class="item">Home</a>
+        <a href="/blogs/new" class="item">New Post</a>
+      </div>
+    </div>
+```
+```css
+/* public/stylsheets directory/app.css */
+i.icon {
+  font-size: 2em;
+}
+```
+
+## Note about RESTful Blog App: New and Create
+Hello Everyone,
+
+In the next lecture Colt introduces a new format for sending data to the server from a form.
+
+Up to this point you have used the name attribute like so:
+
+<input type="text" name="title"> 
+
+Now Colt will write it like this:
+
+<input type="text" name="blog[title]"> 
+
+What this will do is, instead of making the value for title available directly from req.body.title it will put it inside of an object, like so: req.body.blog.title 
+
+Now all of the values from the inputs in the form get added into one object (req.body.blog) and you can easily input that data into the database simply by passing in req.body.blog to Blog.create()
+
+Once in the POST route, the req.body.blog object will look something like this:
+
+{
+  title: "Hello world",
+  description: "This is a blog post"
+}
+I've commented on this further here, including the reason why we use the name="blog[title]" syntax instead of name="blog['title']" or name="blog.title" 
+
+TL;DR: this syntax is specific to body-parser.
+
+Please let me know if you have any questions by replying to the thread linked above.
+
+
+cheers,
+Ian
+
+## RESTful Blog App: NEW and CREATE
+1. Add NEW route
+- we need to create a new route to create a blog item
+
+```js
+// RESTfulBlogApp/app.js
+var express = reuquire("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+
+// INDEX route
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+
+// NEW route
+app.get("/blogs/new", function(req, res){
+  res.render("new");
+})
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+2. Add NEW template
+- Make new.ejs file in views
+```html
+<% include ./partials/header %>
+
+<div class="ui main text container segment">
+  <div class="ui huge header">New Blog</div>
+  <form action="/blogs" method="POST">
+    <input type="text" name="blog[title]" placeholder="title">
+    <input type="text" name="blog[image]" placeholder="image">
+    <input type="text" name="blog[body]" placeholder="blog post goes here">
+    <input type="submit">
+  </form>
+</div>
+
+<% include ./partials/footer %>
+```
+
+- To fix overlap of nav bar
+```css
+/* /stylesheets/app.css */
+i.icon {
+  font-size: 2em;
+}
+
+.container {
+  margin-top: 7.0em;
+}
+```
+
+3. Add Create route
+- we need to add the create route
+
+```js
+// RESTfulBlogApp/app.js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+
+// INDEX route
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+
+// NEW route
+app.get("/blogs/new", function(req, res){
+  res.render("new");
+})
+
+// CREATE route
+app.post("/blog", function(req, res){
+  Blog.create(req.body.blog, function(err, newBlog){
+    if(err){
+      res.render("new");
+    } else {
+      res.redirect("/blogs");
+    }
+  });
+});
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+4. Add Create template
+- style our forms a little bit
+```html
+<!-- views/new.ejs -->
+<% include ./partials/header %>
+
+<div class="ui main text container segment">
+  <div class="ui huge header">New Blog</div>
+  <form class="ui form" action="/blogs" method="POST">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="blog[title]" placeholder="title">
+    </div>
+    <div class="field">
+      <label>Image</label>
+      <input type="text" name="blog[image]" placeholder="image">
+    </div>
+    <div class="field">
+      <label>Blog Cotent</label>
+      <textarea name="blog[body]"></textarea>
+    </div>
+    <input class="ui violet basic button" type="submit">
+  </form>
+</div>
+
+<% include ./partials/footer %>
+```
+
+## RESTful Blog App: SHOW
+1. Add Show route
+```js
+// RESTfulBlogApp/app.js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+
+// INDEX route
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+
+// NEW route
+app.get("/blogs/new", function(req, res){
+  res.render("new");
+})
+
+// CREATE route
+app.post("/blog", function(req, res){
+  Blog.create(req.body.blog, function(err, newBlog){
+    if(err){
+      res.render("new");
+    } else {
+      res.redirect("/blogs");
+    }
+  });
+});
+
+// SHOW ROUTE
+app.get("/blogs/:id", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("show", {blog: foundBlog});
+    }
+  })
+  res.render("");
+});
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+2. Add Show template
+```js
+// views/index.ejs
+<% include ./partials/header %>
+<h1>INDEX PAGE</h1>
+
+<% blogs.forEach(function(blog){ %>
+  <div>
+    <h2><%= blog.title %></h2>
+    <img src="<%= blog.image %=>" />
+    <span><%= blog.created %></span>
+    <p><%= blog.body %></p>
+    <a href="/blogs/<%= blog._id %>">Read More</a>
+  </div>
+<% }) %>
+
+<% include ./partials/footer %>
+```
+
+3. Add links to show page
+- make new show.ejs
+```js
+// views/show.ejs
+<% include ./partials/header %>
+
+<div class="ui main text container segment">
+  <div class="ui huge header"><%= blog.tile %></div>
+  <div class="ui top attached">
+    <div class="item">
+      <img class="ui centered rounded image" src="<%= blog.image %=>" />
+      <div class="content">
+        <span><%= blog.created.toDateString() %></span>
+      </div>
+      <div class="description">
+        <p><%= blog.body %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% include ./partials/header %>
+```
+
+4. Style show template
+- USING `<%- %>`
+- Will evaluate your code IE `<strong>Make bold</strong>`
+- It's also dangerous because users can run harmful script tags
+- Moment.js is a useful date package to structur dates
+
+- TRUNCATING POSTS
+- we use `substring()` method
+```js
+// views/index.ejs
+<% include ./partials/header %>
+<h1>INDEX PAGE</h1>
+
+<% blogs.forEach(function(blog){ %>
+  <div>
+    <h2><%= blog.title %></h2>
+    <img src="<%= blog.image %=>" />
+    <span><%= blog.created %></span>
+    <p><%= blog.body.substring(0,100) %>...</p>
+    <a href="/blogs/<%= blog._id %>">Read More</a>
+  </div>
+<% }) %>
+
+<% include ./partials/footer %>
+```
+
+## RESTful Blog App: EDIT AND UPDATE
+1. Add Edit Route
+```js
+// RESTfulBlogApp/app.js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+
+// INDEX route
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+
+// NEW route
+app.get("/blogs/new", function(req, res){
+  res.render("new");
+})
+
+// CREATE route
+app.post("/blog", function(req, res){
+  Blog.create(req.body.blog, function(err, newBlog){
+    if(err){
+      res.render("new");
+    } else {
+      res.redirect("/blogs");
+    }
+  });
+});
+
+// SHOW ROUTE
+app.get("/blogs/:id", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("show", {blog: foundBlog});
+    }
+  })
+  res.render("");
+});
+
+// EDIT ROUTE
+app.get("/blogs/:id/edit", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("edit", {blog: foundBlog});
+    }
+  })
+  res.render("edit");
+});
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+2. Add Edit Form
+- add in value attribute to have it with prefilled info
+- textarea use whatever is in between the tags
+- we also have to use the PUT method for updating and change the action with the blog id
+```js
+// views/edit.ejs
+<h1>EDIT PAGE</h1>
+
+<% include ./partials/header %>
+
+<div class="ui main text container segment">
+  <div class="ui huge header">Edit <%= blog.title %></div>
+  <form class="ui form" action="/blogs/<%= blog._id %>" method="PUT">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="blog[title]" value="<%= blog.title %>">
+    </div>
+    <div class="field">
+      <label>Image</label>
+      <input type="text" name="blog[image]" value="<%= blog.image %>">
+    </div>
+    <div class="field">
+      <label>Blog Cotent</label>
+      <textarea name="blog[body]"><%= blog.body %></textarea>
+    </div>
+    <input class="ui violet basic button" type="submit">
+  </form>
+</div>
+
+<% include ./partials/footer %>
+```
+
+3. Add Update Route
+4. Add Update Form
+5. Add Method-Override
+- METHOD OVERRIDE
+- [Why there are not PUT and DELETE methods on forms?](https://softwareengineering.stackexchange.com/questions/114156/why-are-there-are-no-put-and-delete-methods-on-html-forms)
+- NOTE: html does not support PUT requests, only GET and POST right now, so we use method-override to bypass this
+- NOTE: PUT requests default as GET requests
+- add `action="blogs/<%= blog._id%>?_method=PUT"` and `method="POST"`
+- this will make sure it gets treated as whatever method you put in action line
+- need to install `npm install --save method-override`, add `var methodOverride = require("method-override")`, add `app.use(methodOverride("_method"))`
+```js
+// RESTfulBlogApp/app.js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+
+// INDEX route
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+
+// NEW route
+app.get("/blogs/new", function(req, res){
+  res.render("new");
+})
+
+// CREATE route
+app.post("/blog", function(req, res){
+  Blog.create(req.body.blog, function(err, newBlog){
+    if(err){
+      res.render("new");
+    } else {
+      res.redirect("/blogs");
+    }
+  });
+});
+
+// SHOW ROUTE
+app.get("/blogs/:id", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("show", {blog: foundBlog});
+    }
+  })
+  res.render("");
+});
+
+// EDIT ROUTE
+app.get("/blogs/:id/edit", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("edit", {blog: foundBlog});
+    }
+  })
+  res.render("edit");
+});
+
+// UPDATE ROUTE
+app.put("/blogs/:id", function(req, res){
+  Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.redirect("/blogs/" + req.params.id);
+    }
+  })
+  res.render("");
+});
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+## RESTful Blog App: DESTROY
+1. Add Destroy Route
+2. Add Edit and Destroy Links
+```js
+// RESTfulBlogApp/app.js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+
+// INDEX route
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+
+// NEW route
+app.get("/blogs/new", function(req, res){
+  res.render("new");
+})
+
+// CREATE route
+app.post("/blog", function(req, res){
+  Blog.create(req.body.blog, function(err, newBlog){
+    if(err){
+      res.render("new");
+    } else {
+      res.redirect("/blogs");
+    }
+  });
+});
+
+// SHOW ROUTE
+app.get("/blogs/:id", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("show", {blog: foundBlog});
+    }
+  })
+  res.render("");
+});
+
+// EDIT ROUTE
+app.get("/blogs/:id/edit", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("edit", {blog: foundBlog});
+    }
+  })
+  res.render("edit");
+});
+
+// UPDATE ROUTE
+app.put("/blogs/:id", function(req, res){
+  Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.redirect("/blogs/" + req.params.id);
+    }
+  })
+  res.render("");
+});
+
+// DELETE ROUTE
+app.delete("/blogs/:id", function(req, res){
+  Blog.findByIdAndRemove(req.params.id, function(err){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.redirect("/blogs");
+    }
+  })
+});
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+- EDIT SHOW.EJS
+- Forms are not inline elements like anchor tags
+- we also add an edit button and make it inline with the css file `#delete { display: inline; }`
+```js
+// views/show.ejs
+<% include ./partials/header %>
+
+<div class="ui main text container segment">
+  <div class="ui huge header"><%= blog.tile %></div>
+  <div class="ui top attached">
+    <div class="item">
+      <img class="ui centered rounded image" src="<%= blog.image %=>" />
+      <div class="content">
+        <span><%= blog.created.toDateString() %></span>
+      </div>
+      <div class="description">
+        <p><%= blog.body %></p>
+      </div>
+      <a class="ui orange basic button" href="/blogs/<%= blog._id %>/edit">Edit</a>
+      <form id="delete" action="/blogs/<%= blog._id %>?_method=DELETE" method="POST">
+        <button class="ui red basic button">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<% include ./partials/header %>
+```
+
+## Note about RESTful Blog App: Final Touches
+Hi All,
+
+In the next lecture, around the 4 minute and 10 second mark, Colt cuts the sanitizer code from the create (post) route. You should leave this code there and copy it instead. Both the create and update routes need the sanitization code.
+
+--------
+Cheers,
+Ian
+
+## RESTful Blog App: Final Touches
+1. Sanitize blog body
+- install `npm install express-sanitizer --save`, `var expressSanitizer = require("express-sanitizer"), `app.use(expressSanitizer());`
+- sanitizer should be after body parser 
+- this will remove harmful scripts
+- we will do it in both create and update routes
+```js
+// RESTfulBlogApp/app.js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+
+// App config
+mongoose.connect("mongodb://localhost/restful_blog_app");
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Mongoose model config
+var blogSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {type: Date, default: Date.now};
+})
+
+var Blog = mongoose.model("Blog", blogSchema);
+
+// RESTful routes
+app.get("/", function(req, res){
+  res.redirect("/blogs");
+})
+
+// INDEX route
+app.get("/blogs", function(req, res){
+  Blog.find({}, function(err, blogs){
+    if(err){
+      console.log("Error");
+    } else {
+      res.render("index", {blogs: blogs});
+    }
+  });
+  res.render("index");
+})
+
+// NEW route
+app.get("/blogs/new", function(req, res){
+  res.render("new");
+})
+
+// CREATE route
+app.post("/blog", function(req, res){
+  req.body.blog.body = req.sanitize(req.body.blog.body);
+  Blog.create(req.body.blog, function(err, newBlog){
+    if(err){
+      res.render("new");
+    } else {
+      res.redirect("/blogs");
+    }
+  });
+});
+
+// SHOW ROUTE
+app.get("/blogs/:id", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("show", {blog: foundBlog});
+    }
+  })
+  res.render("");
+});
+
+// EDIT ROUTE
+app.get("/blogs/:id/edit", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.render("edit", {blog: foundBlog});
+    }
+  })
+  res.render("edit");
+});
+
+// UPDATE ROUTE
+app.put("/blogs/:id", function(req, res){
+  req.body.blog.body = req.sanitize(req.body.blog.body);
+  Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.redirect("/blogs/" + req.params.id);
+    }
+  })
+  res.render("");
+});
+
+// DELETE ROUTE
+app.delete("/blogs/:id", function(req, res){
+  Blog.findByIdAndRemove(req.params.id, function(err){
+    if(err){
+      res.redirect("/blogs");
+    } else {
+      res.redirect("/blogs");
+    }
+  })
+});
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server is running!");
+})
+```
+
+2. Style Index
+
+```js
+// views/index.ejs
+<% include ./partials/header %>
+<div class="ui main text container">
+  <div class="ui huge header">RESTful Blog App</div>
+  <div class="ui top attached segment">
+    <div class="ui divided items">
+      <% blogs.forEach(function(blog){ %>
+        <div class="item">
+          <div class="image">
+            <img src="<%= blog.image %=>" />
+          </div>
+          <div class="content">
+            <a class="header" href="/blogs/<%= blog._id %>"><%= blog.title %></a>
+            <div class="meta">
+              <span><%= blog.created.toDateString() %></span>
+            </div>
+            <div class="description">
+              <p><%- blog.body.substring(0,100) %>...</p>
+            </div>
+            <div class="extra">
+              <a class="ui floated basic violet button" href="/blogs/<%= blog._id %>">
+                Read More
+                <i class="right chevron icon"></i>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<h1>INDEX PAGE</h1>
+
+
+<% include ./partials/footer %>
+```
+3. Update REST Table
+2. List all 7 RESTful routes
+- Name, Path, HTTP Verb, Purpose, Mongoose Method
+  1. Index, /dogs, GET, List all dogs, Dog.find()
+  2. New, /dogs/new, GET, Show new dog form, N/A
+  3. Create, /dogs, POST, Create a new dog, then redirect somewhere, Dog.create()
+  4. Show, /dogs/:id, GET, Show info about one specific dog, Dog.findById()
+  5. Edit, /dogs/:id/edit, GET, Show edit form for one dog, Dog.findById()
+  6. Update, /dogs/:id/edit, PUT, Update a particular dog, then redirect somewhere, Dog.findByIdAndUpdate()
+  7. Destory, /dogs/:id, DELETE, Delete a particular dog, then redirect somewhere, Dog.findByIdAndRemove()
 
 # Section 30 Data Associations
 ## Introduction to Associations
