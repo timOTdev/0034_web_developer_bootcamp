@@ -6069,10 +6069,403 @@ app.list(process.env.PORT, process.env.IP, function(){
   7. Destory, /dogs/:id, DELETE, Delete a particular dog, then redirect somewhere, Dog.findByIdAndRemove()
 
 # Section 30 Data Associations
+## Note about potential MongoDB $pushAll error
+Hi Everyone!
+
+In the next few lectures you may run into an error in your terminal that looks like this:
+
+MongoError: Unknown modifier: $pushAll 
+
+This will only happen if you're using MongoDB version 3.6 (if you're using 3.4 then you won't see this error).
+
+If you encounter this error then you can find a solution for it [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3343228), otherwise bookmark this lecture/article in case you run into this error in the future.
+
+Update January 9th, 2018
+This issue shouldn't happen anymore if you're using MongoDB 3.6.1 (latest version as of today) and Mongoose 5.0.0-rc2 (also the latest version) see here for instructions on how to update if you don't have the latest versions of both MongoDB and Mongoose.
+
+-------
+Thanks,
+Ian
+
 ## Introduction to Associations
+1. Define associations
+- data that is related
+- we will be learning about embedding data and referencing data
+
+- CONNECTED ENTITIES 
+- interconnected item that makes the data connections
+- User, Post, Photos, Albums, Comments, Tags, Likes, and many other models
+
+2. Discuss one:one, one:many, and many:many relationships
+- different types of relationships
+
+- ONE:ONE
+- simplest of relationships
+- one employee has one title
+
+- ONE:MANY
+- most common types of relationships
+- one item related to many other items
+- one user uploads and posts from one account to share with others
+
+- MANY:MANY
+- many interconnected relationships
+- students sign up for a course and a course has many students
+
 ## Embedded Data
+- will be working with user and post
+- made new Associations folder, made embed.js
+```js
+// general structure
+{
+  name: "John",
+  email: "john@gmail.com",
+  posts: [
+    {
+      title: "New Post",
+      content: "Post content"
+    }
+  ]
+}
+```
+
+```js
+// Associations/embed.js
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/blog_demo");
+
+// USER - email, name
+var userSchema = new mongoose. Schema({
+  email: String,
+  name: String
+});
+
+var User = mongoose.model("User", userSchema);
+
+// Post - title, content
+var postSchema = new mongoose.Schema({
+  title: String,
+  content: String
+});
+
+var Post = mongoose.model("Post", postSchema);
+
+var newUser = new User({
+  email: "charlie@brown.edu",
+  name: "Charlie Brown"
+})
+
+// test new user
+newUser.save(function(err, user){
+  if(err){
+    console.log(err);
+  } else {
+    console.log(user);
+  }
+})
+
+// test new post
+var newPost = new Post({
+  title: "Reflections on Apples",
+  content: "They are delicious"
+});
+
+newPost.save(function(err, post){
+  if(err){
+    console.log(err);
+  } else {
+    console.log(post);
+  }
+})
+```
+
+- CONNECTING ONE:MANY RELATIONSHIP
+- we add the post schema in the user schema
+- you also need to define the postSchema first because of hoisting
+- we'll add a new user as well
+```js
+// Associations/embed.js
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/blog_demo");
+
+// Post - title, content
+var postSchema = new mongoose.Schema({
+  title: String,
+  content: String
+});
+
+var Post = mongoose.model("Post", postSchema);
+
+// USER - email, name
+var userSchema = new mongoose. Schema({
+  email: String,
+  name: String
+  posts: [postSchema]
+});
+
+var User = mongoose.model("User", userSchema);
+
+// var newUser = new User({
+//   email: "charlie@brown.edu",
+//   name: "Charlie Brown"
+// })
+
+var newUser = new User({
+  email: "hermione@hogwarts.edu",
+  name: "Hermione Granger"
+})
+
+newUser.posts.push({
+  title: "how to brew polyjuice potion",
+  content: "Just kidding. Go to potions class to learn it"
+})
+
+newUser.save()
+
+// test new user
+newUser.save(function(err, user){
+  if(err){
+    console.log(err);
+  } else {
+    console.log(user);
+  }
+})
+
+// // test new post
+// var newPost = new Post({
+//   title: "Reflections on Apples",
+//   content: "They are delicious"
+// });
+
+newPost.save(function(err, post){
+  if(err){
+    console.log(err);
+  } else {
+    console.log(post);
+  }
+})
+```
+
+- RETRIEVING AN EXISTING USER
+- now we'll run new code to add in a new post
+- this is a callback hell
+```js
+User.findeOne({name: "Hermione Granger"},function(err, user){
+  if(err){
+    console.log(err);
+  }else{
+    user.posts.push({
+      title: "3 Things I really hate",
+      content: "Voldemort. Voldemort. Voldemort."
+    })
+    user.save(function(err, user){
+      if(err){
+        console.log(err);
+      } else{
+        console.log(user);
+      }
+    })
+  }
+});
+```
+## Note about Object References
+Hi Everyone,
+
+In the next lecture you'll be learning about Object References with MongoDB and Mongoose.
+
+If you run into the following error while working through the lecture:
+
+TypeError: Cannot read property 'posts' of null 
+
+then see [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3536872) for a solution.
+
+-------
+Thanks,
+Ian 
+
+[Learn more](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
+
 ## Object References
+- Made new file references.js
+- we use post ids to reference to the post
+```js
+// general structure
+{
+  name: "John",
+  posts: [
+    12314321,
+    13909483,
+    78642014,
+  ]
+}
+
+{
+  id: 12849234,
+  title: "New Post"
+}
+```
+
+```js
+// Associations/references.js
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/blog_demo_2");
+
+// Post - title, content
+var postSchema = new mongoose.Schema({
+  title: String,
+  content: String
+});
+
+var Post = mongoose.model("Post", postSchema);
+
+// USER - email, name
+var userSchema = new mongoose. Schema({
+  email: String,
+  name: String
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post"
+    }
+  ]
+});
+
+var User = mongoose.model("User", userSchema);
+
+// create our first user
+// User.create({
+//   email: "bob@gmail.com",
+//   name: "Bob Belcher"
+// })
+
+// make new post independent of user
+Post.create({
+  title: "How to cook the best burger",
+  content: "blah blah blah blah",
+}, function(err, post){
+  if(err){
+    console.log(err);
+  }else{
+    console.log(post);
+  }
+})
+```
+
+- CONNECT POST TO USER
+```js
+// Associations/references.js
+Post.create({
+  title: "How to cook the best burger Part 2",
+  content: "blah blah blah blah",
+}, function(err, post){
+  if(err){
+    console.log(err);
+  } else {
+    User.findOne({email: "bob@gmail.com"}, function(err, foundUser){
+      if(err){
+        console.log(err);
+      } else {
+        foundUser.posts.push(post);
+        foundUser.save(function(err, data){
+          if(err){
+            console.log(err);
+          } else {
+            console.log(data);
+          }
+        })
+      }
+    });
+  }
+})
+```
+- We create another post
+```js
+// Associations/references.js
+Post.create({
+  title: "How to cook the best burger Part 3",
+  content: "asdfasdfadfawg342ga3g3a 5gaga3rg3arg3a",
+}, function(err, post){
+  if(err){
+    console.log(err);
+  } else {
+    User.findOne({email: "bob@gmail.com"}, function(err, foundUser){
+      if(err){
+        console.log(err);
+      } else {
+        foundUser.posts.push(post);
+        foundUser.save(function(err, data){
+          if(err){
+            console.log(err);
+          } else {
+            console.log(data);
+          }
+        })
+      }
+    });
+  }
+})
+```
+
+- FIND ALL POSTS FOR THAT USER
+```js
+// Associations/references.js
+User.findOne({email: "bob@gmail.com"}).populate("posts").exec(function(err, user){
+  if(err){
+    console.log(err);
+  } else {
+    console.log(user);
+  }
+})
+```
+
+- WHY DO WE USE EMBED VS REFERENCES?
+- it depends and you can use either styles anytime
+- usually there is one type that is better for a situation
+
 ## Module.exports
+1. Introduce module.exports
+- helps to separate our code into separate files
+- we then use require statement to link them
+
+2. Move our models into separate files
+- make new directory in Associations folder called models
+- make post.js and users.js files in models folder
+- we need to add require statement and export statement
+```js
+// models/post.js
+var mongoose = require("mongoose");
+
+// Post - title, content
+var postSchema = new mongoose.Schema({
+  title: String,
+  content: String
+});
+
+module.exports = mongoose.model("Post", postSchema);
+```
+```js
+var mongoose = require("mongoose");
+
+// USER - email, name
+var userSchema = new mongoose. Schema({
+  email: String,
+  name: String
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post"
+    }
+  ]
+});
+
+module.exports = mongoose.model("User", userSchema);
+```
+
+- we need to require in the references.js file also
+```js
+var Post = require("./models/post");
+var User = require("./models/user");
+```
 
 # Section 31 YelpCamp: Comments
 ## YelpCamp: Refactoring App.js
