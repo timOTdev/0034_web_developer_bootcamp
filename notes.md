@@ -4918,14 +4918,15 @@ app.get("/campgrounds/new", function(req, res){
 // SHOW - shows more info about one campground
 app.get("/campgrounds/:id", function(req, res){
   Campground.findById(req.params.id, function(err, foundCampground){
-    if(err){
-      console.log(err);
-    } else {
-      res.render("show", {campground: foundCampground});
-    }
+      if(err){
+          console.log(err);
+          console.log(foundCampground);
+      } else {
+          res.render("show", {campground: foundCampground});
+      }
   });
-  res.render("show");
 });
+
 
 app.listen(process.env.PORT, process.env.IP, function(){
     console.log("The YelpCamp Server has started!!!");
@@ -6104,7 +6105,7 @@ Ian
 - one employee has one title
 
 - ONE:MANY
-- most common types of relationships
+- most common type of the relationships
 - one item related to many other items
 - one user uploads and posts from one account to share with others
 
@@ -6135,7 +6136,7 @@ var mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/blog_demo");
 
 // USER - email, name
-var userSchema = new mongoose. Schema({
+var userSchema = new mongoose.Schema({
   email: String,
   name: String
 });
@@ -6217,7 +6218,7 @@ var newUser = new User({
 
 newUser.posts.push({
   title: "how to brew polyjuice potion",
-  content: "Just kidding. Go to potions class to learn it"
+  content: "Just kidding. Go to potions class to learn it."
 })
 
 newUser.save()
@@ -6250,21 +6251,21 @@ newPost.save(function(err, post){
 - now we'll run new code to add in a new post
 - this is a callback hell
 ```js
-User.findeOne({name: "Hermione Granger"},function(err, user){
+User.findOne({name: "Hermione Granger"},function(err, user){
   if(err){
     console.log(err);
-  }else{
+  } else {
     user.posts.push({
       title: "3 Things I really hate",
       content: "Voldemort. Voldemort. Voldemort."
-    })
+    });
     user.save(function(err, user){
       if(err){
         console.log(err);
       } else{
         console.log(user);
       }
-    })
+    });
   }
 });
 ```
@@ -6321,7 +6322,7 @@ var Post = mongoose.model("Post", postSchema);
 // USER - email, name
 var userSchema = new mongoose. Schema({
   email: String,
-  name: String
+  name: String,
   posts: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -6378,6 +6379,7 @@ Post.create({
   }
 })
 ```
+
 - We create another post
 ```js
 // Associations/references.js
@@ -6429,7 +6431,7 @@ User.findOne({email: "bob@gmail.com"}).populate("posts").exec(function(err, user
 
 2. Move our models into separate files
 - make new directory in Associations folder called models
-- make post.js and users.js files in models folder
+- make post.js and user.js files in models folder
 - we need to add require statement and export statement
 ```js
 // models/post.js
@@ -6467,15 +6469,640 @@ var Post = require("./models/post");
 var User = require("./models/user");
 ```
 
-# Section 31 YelpCamp: Comments
+# Section 31 YelpCamp: Comments 
 ## YelpCamp: Refactoring App.js
+1. Create a models directory
+2. Use module.exports
+3. Require everything correctly!
+- created a campground.js file inside models folder
+```js
+// YelpCamp/models/campground.js
+var mongoose = require("mongoose");
+
+var campgroundSchema = new mongoose.Schema({
+    name: String,
+    image: String,
+    description: String
+});
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+module.exports = Campground;
+```
+
+- also adding require statement to app.js
+```js
+// Yelpcamp/app.js
+var Campground = require("./models/campground");
+```
+
+## Note about Seeding the Database
+Hi Everyone!
+
+MongoDB and Mongoose have both been updated with breaking changes recently.
+
+Checkout [this thread](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3454522) to see how you can update your MongoDB and Mongoose versions while also updating your syntax to avoid the breaking changes.
+
+In the next lecture (YelpCamp: Seeding the Database) you can just use the following code for your seeds.js file instead of using the code from the video:
+
+```js
+var mongoose = require("mongoose");
+var Campground = require("./models/campground");
+var Comment   = require("./models/comment");
+ 
+var data = [
+    {
+        name: "Cloud's Rest", 
+        image: "https://farm4.staticflickr.com/3795/10131087094_c1c0a1c859.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    },
+    {
+        name: "Desert Mesa", 
+        image: "https://farm6.staticflickr.com/5487/11519019346_f66401b6c1.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    },
+    {
+        name: "Canyon Floor", 
+        image: "https://farm1.staticflickr.com/189/493046463_841a18169e.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    }
+]
+ 
+function seedDB(){
+   //Remove all campgrounds
+   Campground.remove({}, function(err){
+        if(err){
+            console.log(err);
+        }
+        console.log("removed campgrounds!");
+        Comment.remove({}, function(err) {
+            if(err){
+                console.log(err);
+            }
+            console.log("removed comments!");
+             //add a few campgrounds
+            data.forEach(function(seed){
+                Campground.create(seed, function(err, campground){
+                    if(err){
+                        console.log(err)
+                    } else {
+                        console.log("added a campground");
+                        //create a comment
+                        Comment.create(
+                            {
+                                text: "This place is great, but I wish there was internet",
+                                author: "Homer"
+                            }, function(err, comment){
+                                if(err){
+                                    console.log(err);
+                                } else {
+                                    campground.comments.push(comment);
+                                    campground.save();
+                                    console.log("Created new comment");
+                                }
+                            });
+                    }
+                });
+            });
+        });
+    }); 
+    //add a few comments
+}
+ 
+module.exports = seedDB;
+```
+
+If you run into the Cannot read property 'name' of null  error, it's because now that we have the seeds function in app.js the campgrounds get deleted and recreated every time we start or restart the app. If you want to avoid this error then you can either, comment out seedDB() in app.js or just be sure to go back to the campgrounds index page before going to any of the show pages.
+-------
+Thanks,
+Ian
+
+Follow me on [YouTube](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
+
 ## YelpCamp: Seeding the Database
+1. Add a seeds.js file
+2. Run the seeds file every time the server starts
+- created seeds.js in root directory
+- we added sample data
+- we run the forEach loop inside the seedDB() function to guarantee that it runs after we have removed all the campgrounds.
+```js
+// seeds.js
+var mongoose = require("mongoose");
+var Campground = require("./models/campground");
+var Comment   = require("./models/comment");
+ 
+var data = [
+    {
+        name: "Cloud's Rest", 
+        image: "https://farm4.staticflickr.com/3795/10131087094_c1c0a1c859.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    },
+    {
+        name: "Desert Mesa", 
+        image: "https://farm6.staticflickr.com/5487/11519019346_f66401b6c1.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    },
+    {
+        name: "Canyon Floor", 
+        image: "https://farm1.staticflickr.com/189/493046463_841a18169e.jpg",
+        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    }
+]
+ 
+function seedDB(){
+   //Remove all campgrounds
+   Campground.remove({}, function(err){
+        if(err){
+            console.log(err);
+        }
+        console.log("removed campgrounds!");
+        Comment.remove({}, function(err) {
+            if(err){
+                console.log(err);
+            }
+            console.log("removed comments!");
+             //add a few campgrounds
+            data.forEach(function(seed){
+                Campground.create(seed, function(err, campground){
+                    if(err){
+                        console.log(err)
+                    } else {
+                        console.log("added a campground");
+                        //create a comment
+                        Comment.create(
+                            {
+                                text: "This place is great, but I wish there was internet",
+                                author: "Homer"
+                            }, function(err, comment){
+                                if(err){
+                                    console.log(err);
+                                } else {
+                                    campground.comments.push(comment);
+                                    campground.save();
+                                    console.log("Created new comment");
+                                }
+                            });
+                    }
+                });
+            });
+        });
+    }); 
+    //add a few comments
+}
+ 
+module.exports = seedDB;
+```
+
 ## Note about comment model lecture
+Hi Everyone!
+
+In the next few lectures you will learn how to add comments to your project. During this process you may run into the following error: TypeError: Cannot read property 'push' of undefined 
+
+Colt will show you how to remedy this issue by making a reference to the Comment model from within the Campground model. Just be sure to complete the Comment Model lecture and you won't have any issues.
+
+Furthermore, your Campground and Comment models will look like this:
+```js
+// /models/campground.js
+var mongoose = require("mongoose");
+ 
+var campgroundSchema = new mongoose.Schema({
+   name: String,
+   image: String,
+   description: String,
+   comments: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Comment"
+      }
+   ]
+});
+ 
+module.exports = mongoose.model("Campground", campgroundSchema);
+// /models/comment.js
+
+var mongoose = require("mongoose");
+ 
+var commentSchema = new mongoose.Schema({
+    text: String,
+    author: String
+});
+ 
+module.exports = mongoose.model("Comment", commentSchema);
+```
+
+Thanks,
+Ian
+Course TA
+
 ## YelpCamp: Comment Model
+1. Make our errors go away page
+- make a comment.js file in models folder
+- don't forget to require in seeds.js in app.js
+```js
+// /models/comment.js
+var mongoose = require("mongoose");
+ 
+var commentSchema = new mongoose.Schema({
+    text: String,
+    author: String
+});
+ 
+module.exports = mongoose.model("Comment", commentSchema);
+```
+
+2. Display comments on campground show
+- need to add the schema into campground 
+- now our data for campgrounds and comments should be associated
+```js
+// /models/campground.js
+var mongoose = require("mongoose");
+ 
+var campgroundSchema = new mongoose.Schema({
+   name: String,
+   image: String,
+   description: String,
+   comments: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Comment"
+      }
+   ]
+});
+ 
+module.exports = mongoose.model("Campground", campgroundSchema);
+```
+
+- ADJUSTING APP.JS
+- we work with SHOW route
+```js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+var Campground = require("./models/campground");
+var seedDB = require("./seeds");
+
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+seedDB();
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+// INDEX - show all campgrounds
+app.get("/campgrounds", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds", {campgrounds: allCampgrounds});
+    }
+  })
+});
+
+// CREATE - add new campground to DB
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var newCampground = {name: name, image: image, description: desc};
+    Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+});
+
+// NEW - show form to create new campground
+app.get("/campgrounds/new", function(req, res){
+    res.render("new");
+});
+
+// SHOW - shows more info about one campground
+app.get("/campgrounds/:id", function(req, res){
+  Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+      if(err){
+          console.log(err);
+          console.log(foundCampground);
+      } else {
+        console.log(foundCampground);
+          res.render("show", {campground: foundCampground});
+      }
+  });
+});
+
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- ADDING RENDER TO SHOW.EJS
+```js
+<% include partials/header %>
+
+<h1><%= campground.name %></h1>
+<img src="<%= campground.image %>">
+<p><%= campground.description %></p>
+
+<% campground.comments.forEach(function(comment){ %>
+  <p>
+    <strong><%= comment.author %></strong> - <%= comment.text %>
+  </p>
+<% }) %>
+<% include partials/footer %>
+```
+
+## Note about Comments Lecture
+Hi Everyone!
+
+Just a reminder from the note a few lectures back, you will need to update your MongoDB and Mongoose versions with these instructions (if you haven't do so already) to avoid the breaking changes from the latest versions of MongoDB and Mongoose.
+
+-------
+Thanks,
+Ian
+
 ## YelpCamp: Creating Comments Pt. 1
+1. Discuss nested routes
+2. Add the comment new and create routes
+3. Add the new comment form
+
+- REVIEW OF ROUTES
+- name, url, verb, desc.
+1. INDEX, /dogs, GET, Display a list of all dogs
+2. NEW, /dogs/new, GET, Displays form to make a new dog
+3. CREATE, /dogs, POST, Add new dog to DB
+4. SHOW, /dogs/:id, GET, Shows info about one dog
+
+- REGULAR RESTful ROUTES
+- INDEX   /campgrounds
+- NEW     /campgrounds/new
+- CREATE  /campgrounds
+- SHOW    /campgrounds/:id
+
+- COMMENT ROUTE
+- comments are nested under RESTful routes
+- they can dependent in each campground
+- we will have to connect the comments and the campgrounds
+- NEW     campgrounds/:id/comments/new GET
+- CREATE  campgrounds/:id/comments     POST
+
+- MAKING ROUTE IN APP.JS
+- we are splitting up views, so make new folders called `campgrounds` and `comments`
+- CAMPGROUNDS folder: index.ejs, new.ejs, show.ejs
+- COMMENTS folder: new.ejs
+- Update the paths in app.js, remember that you don't have to type the views folder in the path name
+```js
+// app.js
+var express = require("express");
+var app = express();
+var mongoose = require("mongoose");
+var bodyParser = require("body-parser");
+var Campground = require("./models/campground");
+var Comment = require("./models/comment");
+var seedDB = require("./seeds");
+
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+seedDB();
+
+app.get("/", function(req, res){
+  res.render("landing");
+});
+
+// INDEX - show all campgrounds
+app.get("/campgrounds", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds/index", {campgrounds: allCampgrounds});
+    }
+  })
+});
+
+// CREATE - add new campground to DB
+app.post("/campgrounds", function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var newCampground = {name: name, image: image, description: desc};
+    Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+});
+
+// NEW - show form to create new campground
+app.get("/campgrounds/new", function(req, res){
+    res.render("campgrounds/new");
+});
+
+// SHOW - shows more info about one campground
+app.get("/campgrounds/:id", function(req, res){
+  Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+      if(err){
+          console.log(err);
+          console.log(foundCampground);
+      } else {
+        console.log(foundCampground);
+          res.render("campgrounds/show", {campground: foundCampground});
+      }
+  });
+});
+
+// ==========================
+// COMMENTS ROUTES
+// ==========================
+app.get("/campgrounds/:id/comments/new", function(req, res){
+  Campground.findById(req.params.id, function(err, campground){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("comments/new", {campground: campground});
+    }
+  });
+})
+
+app.post("/campgrounds/:id/comments", function(req, res){
+  Campground.findById(req.params.id, function(err, campground){
+    if(err){
+      console.log(err);
+      res.redirect("/campgrounds");
+    } else {
+      Comment.create({req.body.comment, function(err, comment){
+        if(err){
+          console.log(err);
+        } else {
+          campground.comments.push(comment);
+          campground.save();
+          res.redirect("/campgrounds/" + campground._id);
+        }
+      }})
+    }
+  })
+})
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
 ## YelpCamp: Creating Comments Pt. 2
+- MAKING COMMENTS NEW PATH
+```js
+// views/comments/new.ejs
+<% include ../partials/header %>
+  <div class="container">
+    <div class="row">
+      <h1 style="text-align: center;">Add New Comment to <%= campground.name %></h1>
+      <div style="width: 30%; margin: 25px auto;">
+        <form action="/campgrounds/<%= campground._id %>/comments" method="POST">
+          <div class="form-group">
+            <input class="form-control" type="text" name="comment[text]" placeholder="text">
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" name="comment[author]" placeholder="author">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-lg btn-primary btn-block">Submit!</button>
+          </div>
+        </form>
+        <a href="/campgrounds">Go Back</a>
+      </div>
+    </div>
+  </div>
+<% include ../partials/footer %>
+```
+
+- UPDATING PARTIALS PATH
+- you have to update all the templates
+```js
+// campgrounds/index.ejs
+%< include ../partials/header %>
+// ...
+%< include ../partials/footer %>
+```
+
+- ADDING BUTTON TO CREATE COMMENT
+```js
+<% include partials/header %>
+
+<h1><%= campground.name %></h1>
+<img src="<%= campground.image %>">
+<p><%= campground.description %></p>
+
+<p>
+  <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+</p>
+
+<% campground.comments.forEach(function(comment){ %>
+  <p>
+    <strong><%= comment.author %></strong> - <%= comment.text %>
+  </p>
+<% }) %>
+<% include partials/footer %>
+```
+
 ## YelpCamp: Styling Comments Pt 1
+- Working in V5 now
+1. Add sidebar to show page
+- we will make image take 100% width and give padding around
+- added padding: 0 to thumbnail to remove empty white space
+2. Display comments nicely
+```js
+// campgrounds/show.ejs
+<% include ../partials/header %>
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      <p class="lead">YelpCamp</p>
+      <div>
+        <li class="list-group-item active">Info 1</li>
+        <li class="list-group-item">Info 2</li>
+        <li class="list-group-item">Info 3</li>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="thumbnail">
+        <img class="img-responsive" src="<%= campground.image %>">
+        <div class="caption-full">
+          <h4 class="pull-right">$9.00/night</h4>
+          <h4><a><%= campground.name %><a></h4>
+          <p><%= campground.description %></p>
+        </div>
+      </div>
+
+      <div>
+        <div class="well">
+          <div class="text-right">
+            <a class="btn btn-success" href="/campgrounds/<%=campground._id%>/comments/new">Add New Comment</a>
+          </div>
+          <hr>
+          <% campground.comments.forEach(function(comment){ %>
+            <div class="row">
+              <div class="col-md-12">
+                <strong><%= comment.author %></strong>
+                <span class="pull-right">10 days ago</span>
+                <p><%= comment.text %></p>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% include ../partials/footer %>
+```
+
+## Note about YelpCamp: Styling Comments Pt 2
+Hello Everyone,
+
+In the next lecture you will write some custom CSS for a class named .caption-full 
+
+This class can also be replaced with .caption which is a class that comes with Bootstrap and does virtually the same thing (adds 9px padding).
+
+Either solution is fine, I just wanted to clarify that Bootstrap has a similar pre-made class so there's no confusion if you come across it in the future.
+
+cheers,
+Ian
+
 ## YelpCamp: Styling Comments Pt 2
+1. Add public direcoty
+2. Add custom stylesheet
+- make a public directory, make stylesheets inside, make main.css inside
+- We need to add some custom stylings with a stylesheet
+- connect in app.js, `app.use(express.static(__dirname + "/public"))`
+- this is the more convention way of doing this in node
+- add in a link tag in the header.js, `<link rel="stylesheet" href="/stylesheets/main.css">`
+```css
+/* public/stylesheets/main.css */
+.img-responsive { 
+    width: 100%;
+}
+
+.thumbnail img {
+  width: 100%;
+}
+
+.thumbnail {
+  padding: 0;
+}
+
+.thumbnail .caption-full {
+  padding: 9px;
+}
+```
 
 # Section 32 Authentication
 ## Note about authentication section
