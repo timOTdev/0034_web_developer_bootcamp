@@ -4805,23 +4805,8 @@ app.listen(process.env.PORT, process.env.IP, function(){
 - we renamed the `campgrounds.ejs` to `index.ejs` to fit RESTful convention
 - don't forget to change the app.get for /campgrounds to res.render("index")
 ```js
-// partials/index.ejs
+// campgrounds/index.ejs
 <% include partials/header %>
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="/">Yelpcamp</a>
-      </div>
-      <div class="collapse navbar-collapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="/">Login</a></li>
-          <li><a href="/">Signup</a></li>
-          <li><a href="/">Logout</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
   <div class="container">
     <header class="jumbotron">
       <div class="container">
@@ -7106,12 +7091,438 @@ Ian
 
 # Section 32 Authentication
 ## Note about authentication section
+Hey Everyone,
+
+I have come across several students who have encountered bugs and errors due to misplacement of code from the authentication lectures. 
+
+So just a reminder, please pay special attention to the order in which Colt includes various lines of code in his program (particularly the app.js file). And remember, you can always reference Colt's source code here if you run into trouble.
+
+The order in which code is included is important because some parts of the code rely on others to have been loaded prior in order to work correctly.
+
+Additionally, if you're wondering what happened to the "Auth From Scratch" lectures, Colt opted not to make them because of potential security risks. However, I shared a video in [this thread](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/2367062) that dives pretty deep into the inner workings of authentication. You might bookmark it and check it out after you finish the lectures from this section.
+
+
+Thanks! :)
+Ian
+Course TA
+
 ## Introduction to Authentication
+1. What tools are we using?
+  - [Passport](http://www.passportjs.org/)
+    - Strategies refer to different ways of people can log in
+  - [Passport Local](https://github.com/jaredhanson/passport-local)
+  - [Passport Local Mongoose](https://github.com/saintedlama/passport-local-mongoose)
+    - Makes it even easier than passport local
+
+2. Walk through auth flow
+- There's a secret page that only shows if you're logged in
+- the main idea of this flow is sessions, way to make HTTP not stateless
+- some information is saved about the user and encoded, like a key
+
+3. Discuss sessions
+  - Express-Session
+    - This is a package that will help with working with sessions
+
 ## Secret Page Code Along Pt. 1
+1. Set up folder structure
+2. Install needed packages
+3. Add root route and template
+4. Add secret Route and template
+
+- make new Authentication directory, make AuthDemo inside that
+- run `npm init`
+- `touch app.js`
+- `npm install --save express ejs mongoose passport passport-local passport-local-mongoose body-parser express-session`
+- make views and models directory
+
+- START BASIC EXPRESS APP
+```js
+// app.js
+var express = require("express");
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/auth_demo_app");
+
+var app = express();
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res){
+  res.render("home");
+})
+
+app.get("/secret", function(req,res){
+  res.render("secret");
+})
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server started.......");
+})
+```
+
+- MAKE HOME.EJS
+```js
+// views/home.ejs
+<h1>This is our home page</h1>
+```
+
+- MAKE SECRET.EJS
+```js
+// views/secret.js
+<h1>This is our secret page</h1>
+<p>You found me</p>
+```
+
 ## Secret Page Code Along Pt. 2
+1. Create use model
+2. Configure passport
+
+- REQUIRE ADDITIONAL PACKAGES
+- we added user schema
+- need to use both lines app.use() when we are using passport package
+- the secret block is to how to encode our sessions
+- serializeUser() deserializeUser() helps to encode our sessions
+
+```js
+// app.js
+var express = require("express");
+var mongoose = require("mongoose");
+var passport = require("passport");
+var bodyParser = require("body-parser");
+var LocalStrategy = require("passport-local");
+var passportLocalMongoose = require("passport-local-mongoose");
+var User = require("./models/user");
+
+mongoose.connect("mongodb://localhost/auth_demo_app");
+
+var app = express();
+app.set("view engine", "ejs");
+
+app.use(require("express-session")({
+  secret: "Rusty is the best and cutest dog in the world",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.get("/", function(req, res){
+  res.render("home");
+})
+
+app.get("/secret", function(req, res){
+  res.render("secret");
+})
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server started.......");
+})
+```
+
+- SET UP USER SCHEMA
+- make user.js in models folder
+- we are adding passport local mongoose in schema
+```js
+// models/user.js
+var mongoose = require("mongoose");
+var passportLocalMongoose = require("passport-local-mongoose");
+va
+var UserSchema = new mongoose.Schema({
+  username: String,
+  password: String
+})
+
+UserSchema.plugin(passportLocalMongoose);
+module.exports = mongoose.model("User", UserSchema);
+```
+
 ## Secret Page Code Along Pt. 3
+1. Add Register routes
+2. Add Register form
+
+- create a views/register.ejs
+- add a GET and POST request block
+- For POST, we don't actually save user's password in database but something else
+- it will hash the password and store that in the database
+- we also log back into auth_demo_app to check that the user saved
+  - salt helps unhash the password
+  - hash is the hashed version of our password
+```js
+// app.js
+var express = require("express");
+var mongoose = require("mongoose");
+var passport = require("passport");
+var bodyParser = require("body-parser");
+var LocalStrategy = require("passport-local");
+var passportLocalMongoose = require("passport-local-mongoose");
+var User = require("./models/user");
+
+mongoose.connect("mongodb://localhost/auth_demo_app");
+
+var app = express();
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(require("express-session")({
+  secret: "Rusty is the best and cutest dog in the world",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ==========
+// ROUTES
+// ==========
+app.get("/", function(req, res){
+  res.render("home");
+})
+
+app.get("/secret", function(req, res){
+  res.render("secret");
+})
+
+// AUTH ROUTES
+app.get("/register", function(req, res){
+  res.render("register");
+})
+
+app.post("/register", function(req, res){
+  req.body.username
+  req.body.username
+  User.register(new User({username: req.body.username}), req.body.password, function(err, user){
+    if(err){
+      console.log(err);
+      return res.render("register");
+    }
+    passport.authenticate("local")(req, res, function(){
+      res.redirect("/secret");
+    })
+  })
+})
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server started.......");
+})
+```
+
+- CREATE SIGNUP FORM
+```js
+// views/register.ejs
+<h1>Sign up form</h1>
+
+<form action="/register" method="POST">
+  <input type="text" name="username" placeholder="username">
+  <input type="password" name="password" placeholder="password">
+  <button>Submit</button>
+</form>
+```
+
+- ADD SIGNUP LINK
+```js
+// views.home.ejs
+<h1>HOME PAGE</h1>
+
+<li><a href="/register">Sign Up!</a></li>
+```
+
 ## Secret Page Code Along Pt. 4
+1. Add Login Routes
+2. Add Login Form
+
+- MAKE LOGIN ROUTES
+- middleware is some code that runs before our final callback code
+- you can stack as many as you want, we will create middleware in our other videos
+```js
+// app.js
+var express = require("express");
+var mongoose = require("mongoose");
+var passport = require("passport");
+var bodyParser = require("body-parser");
+var LocalStrategy = require("passport-local");
+var passportLocalMongoose = require("passport-local-mongoose");
+var User = require("./models/user");
+
+mongoose.connect("mongodb://localhost/auth_demo_app");
+
+var app = express();
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(require("express-session")({
+  secret: "Rusty is the best and cutest dog in the world",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ==========
+// ROUTES
+// ==========
+app.get("/", function(req, res){
+  res.render("home");
+})
+
+app.get("/secret", function(req, res){
+  res.render("secret");
+})
+
+// AUTH ROUTES
+app.get("/register", function(req, res){
+  res.render("register");
+})
+
+app.post("/register", function(req, res){
+  req.body.username
+  req.body.username
+  User.register(new User({username: req.body.username}), req.body.password, function(err, user){
+    if(err){
+      console.log(err);
+      return res.render("register");
+    }
+    passport.authenticate("local")(req, res, function(){
+      res.redirect("/secret");
+    })
+  })
+})
+
+// LOGIN ROUTES
+app.get("/login", function(req, res){
+  res.render("login");
+})
+
+app.post("/login"), passport.authenticate("local", {
+  successRedirect: "/secret",
+  failureRedirect: "/login"
+}), function(req, res){
+})
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server started.......");
+})
+```
+
+- CREATE LOGIN FORM
+```js
+// views/login.ejs
+<h1>Login</h1>
+
+<form action="/login" method="POST">
+  <input type="text" name="username" placeholder="username">
+  <input type="password" name="password" placeholder="password">
+  <button>Login</button>
+</form>
+```
+
 ## Secret Page Code Along Pt. 5
+1. Add Logout Route
+2. Add isLoggedIn middleware
+
+- ADDING LINKS
+- copy this to register.ejs and login.ejs
+```js
+// views.home.ejs
+<h1>HOME PAGE</h1>
+
+<li><a href="/register">Sign Up!</a></li>
+<li><a href="/login">Login</a></li>
+<li><a href="/logout">Logout</a></li>
+```
+
+- ADD LOGOUT ROUTE
+```js
+// app.js
+var express = require("express");
+var mongoose = require("mongoose");
+var passport = require("passport");
+var bodyParser = require("body-parser");
+var LocalStrategy = require("passport-local");
+var passportLocalMongoose = require("passport-local-mongoose");
+var User = require("./models/user");
+
+mongoose.connect("mongodb://localhost/auth_demo_app");
+
+var app = express();
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(require("express-session")({
+  secret: "Rusty is the best and cutest dog in the world",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ==========
+// ROUTES
+// ==========
+app.get("/", function(req, res){
+  res.render("home");
+})
+
+app.get("/secret", isLoggedIn, function(req, res){
+  res.render("secret");
+})
+
+// AUTH ROUTES
+app.get("/register", function(req, res){
+  res.render("register");
+})
+
+app.post("/register", function(req, res){
+  req.body.username
+  req.body.username
+  User.register(new User({username: req.body.username}), req.body.password, function(err, user){
+    if(err){
+      console.log(err);
+      return res.render("register");
+    }
+    passport.authenticate("local")(req, res, function(){
+      res.redirect("/secret");
+    })
+  })
+})
+
+// LOGIN ROUTES
+app.get("/login", function(req, res){
+  res.render("login");
+})
+
+app.post("/login"), passport.authenticate("local", {
+  successRedirect: "/secret",
+  failureRedirect: "/login"
+}), function(req, res){
+})
+
+// LOGOUT ROUTES
+app.get("/logout", function(req, res){
+  req.logout();
+  res.redirect("/");
+})
+
+// MIDDLEWARE
+function isLoggedIn(req, res, next){
+  if(req.isAuthenticated()){
+    return next();
+  }
+  res.redirect("/login");
+})
+
+app.list(process.env.PORT, process.env.IP, function(){
+  console.log("Server started.......");
+})
+```
 
 # Section 33 YelpCamp: Adding Authenication
 ## YelpCamp: Adding Auth Pt. 1
