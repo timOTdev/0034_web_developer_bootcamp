@@ -8535,8 +8535,640 @@ app.listen(process.env.PORT, process.env.IP, function(){
 
 # Section 34 YelpCamp: Cleaning Up
 ## YelpCamp: Refactoring Routes
+1. Use Express router to reoganize all routes
+- we then also have to add `app.use()` to start using these new routes in APP.JS
+- we are splitting app.js into 3 different files inside a routes folder: campground.js, comments.js, index.js
+- we are now also using express.Router() to link all the routes to the router and export with `module.exports = router` in each of the different route files
+- we also change from `app.get` to `router.get`
+- we can also DRY up our code in the app.use by passing in the default path
+
+- APP.JS
+```js
+var express     = require("express"),
+    app         = express(),
+    bodyParser  = require("body-parser"),
+    mongoose    = require("mongoose"),
+    passport    = require("passport"),
+    LocalStrategy = require("passport-local"),
+    Campground  = require("./models/campground"),
+    Comment     = require("./models/comment"),
+    User        = require("./models/user"),
+    seedDB      = require("./seeds")
+    
+//requring routes
+var commentRoutes    = require("./routes/comments"),
+    campgroundRoutes = require("./routes/campgrounds"),
+    indexRoutes      = require("./routes/index")
+    
+mongoose.connect("mongodb://localhost/yelp_camp_v6");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
+seedDB();
+
+// PASSPORT CONFIGURATION
+app.use(require("express-session")({
+    secret: "Once again Rusty wins cutest dog!",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use(function(req, res, next){
+   res.locals.currentUser = req.user;
+   next();
+});
+
+app.use("/", indexRoutes);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/comments", commentRoutes);
+
+app.listen(process.env.PORT, process.env.IP, function(){
+   console.log("The YelpCamp Server Has Started!");
+});
+```
+
+- CAMPGROUND.JS
+```js
+// routes/campground.js
+var express = require("express");
+var router  = express.Router();
+var Campground = require("../models/campground");
+
+//INDEX - show all campgrounds
+router.get("/", function(req, res){
+    // Get all campgrounds from DB
+    Campground.find({}, function(err, allCampgrounds){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("campgrounds/index",{campgrounds:allCampgrounds});
+       }
+    });
+});
+
+//CREATE - add new campground to DB
+router.post("/", function(req, res){
+    // get data from form and add to campgrounds array
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var newCampground = {name: name, image: image, description: desc}
+    // Create a new campground and save to DB
+    Campground.create(newCampground, function(err, newlyCreated){
+        if(err){
+            console.log(err);
+        } else {
+            //redirect back to campgrounds page
+            res.redirect("/campgrounds");
+        }
+    });
+});
+
+//NEW - show form to create new campground
+router.get("/new", function(req, res){
+   res.render("campgrounds/new"); 
+});
+
+// SHOW - shows more info about one campground
+router.get("/:id", function(req, res){
+    //find the campground with provided ID
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+        if(err){
+            console.log(err);
+        } else {
+            console.log(foundCampground)
+            //render show template with that campground
+            res.render("campgrounds/show", {campground: foundCampground});
+        }
+    });
+});
+
+module.exports = router;
+```
+
+- COMMENTS.JS
+- our id parameter isn't working from app.js
+- we need to use `mergeParams: true` in the router
+```js
+// routes/comments.js
+var express = require("express");
+var router  = express.Router({mergeParams: true});
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+
+//Comments New
+router.get("/new", isLoggedIn, function(req, res){
+    // find campground by id
+    console.log(req.params.id);
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else {
+             res.render("comments/new", {campground: campground});
+        }
+    })
+});
+
+//Comments Create
+router.post("/",isLoggedIn,function(req, res){
+   //lookup campground using ID
+   Campground.findById(req.params.id, function(err, campground){
+       if(err){
+           console.log(err);
+           res.redirect("/campgrounds");
+       } else {
+        Comment.create(req.body.comment, function(err, comment){
+           if(err){
+               console.log(err);
+           } else {
+               campground.comments.push(comment);
+               campground.save();
+               res.redirect('/campgrounds/' + campground._id);
+           }
+        });
+       }
+   });
+});
+
+//middleware
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
+
+module.exports = router;
+```
+
+- INDEX.JS
+```js
+// routes/index.js
+var express = require("express");
+var router  = express.Router();
+var passport = require("passport");
+var User = require("../models/user");
+
+//root route
+router.get("/", function(req, res){
+    res.render("landing");
+});
+
+// show register form
+router.get("/register", function(req, res){
+   res.render("register"); 
+});
+
+//handle sign up logic
+router.post("/register", function(req, res){
+    var newUser = new User({username: req.body.username});
+    User.register(newUser, req.body.password, function(err, user){
+        if(err){
+            console.log(err);
+            return res.render("register");
+        }
+        passport.authenticate("local")(req, res, function(){
+           res.redirect("/campgrounds"); 
+        });
+    });
+});
+
+//show login form
+router.get("/login", function(req, res){
+   res.render("login"); 
+});
+
+//handling login logic
+router.post("/login", passport.authenticate("local", 
+    {
+        successRedirect: "/campgrounds",
+        failureRedirect: "/login"
+    }), function(req, res){
+});
+
+// logout route
+router.get("/logout", function(req, res){
+   req.logout();
+   res.redirect("/campgrounds");
+});
+
+//middleware
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
+
+module.exports = router;
+```
+
 ## YelpCamp: User Associations: Comment
+1. Associate users and comments
+2. Save author's name to a comment automatically
+- we are in V8 now
+- we also removed all the campgrounds one time and commented out seedDB in app.js
+
+- COMMENT MODEL
+```js
+var mongoose = require("mongoose");
+
+var commentSchema = mongoose.Schema({
+    text: String,
+    author: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        username: String
+    }
+});
+
+module.exports = mongoose.model("Comment", commentSchema);
+```
+
+- CAMPGROUNDS MODEL
+- we now want to associate the author of the comment to comments route
+```js
+// models/campground.js
+var mongoose = require("mongoose");
+
+var campgroundSchema = new mongoose.Schema({
+   name: String,
+   image: String,
+   description: String,
+   comments: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Comment"
+      }
+   ]
+});
+
+module.exports = mongoose.model("Campground", campgroundSchema);
+```
+
+- COMMENTS ROUTE
+- we now save the author who posts the comments
+```js
+var express = require("express");
+var router  = express.Router({mergeParams: true});
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+
+//Comments New
+router.get("/new", isLoggedIn, function(req, res){
+    // find campground by id
+    console.log(req.params.id);
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else {
+             res.render("comments/new", {campground: campground});
+        }
+    })
+});
+
+//Comments Create
+router.post("/",isLoggedIn,function(req, res){
+   //lookup campground using ID
+   Campground.findById(req.params.id, function(err, campground){
+       if(err){
+           console.log(err);
+           res.redirect("/campgrounds");
+       } else {
+        Comment.create(req.body.comment, function(err, comment){
+           if(err){
+               console.log(err);
+           } else {
+               //add username and id to comment
+               comment.author.id = req.user._id;
+               comment.author.username = req.user.username;
+               //save comment
+               comment.save();
+               campground.comments.push(comment);
+               campground.save();
+               console.log(comment);
+               res.redirect('/campgrounds/' + campground._id);
+           }
+        });
+       }
+   });
+});
+
+//middleware
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
+
+
+module.exports = router;
+```
+
+- GET RID OF AUTHOR FIELD
+```js
+// views/comments/new.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <h1 style="text-align: center">Add New Comment to <%= campground.name %></h1>
+        <div style="width: 30%; margin: 25px auto;">
+            <form action="/campgrounds/<%= campground._id %>/comments" method="POST">
+                <div class="form-group">
+                    <input class="form-control" type="text" name="comment[text]" placeholder="text">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-lg btn-primary btn-block">Submit!</button>
+                </div>
+            </form>
+            <a href="/campgrounds">Go Back</a>
+        </div>
+    </div>
+</div>
+<% include ../partials/footer %>
+```
+
+- DISPLAY USER NAME ON COMMENTS
+```js
+// views/campgrounds/show.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                           
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
 ## YelpCamp: User Associations: Campground
+1. Prevent an unauthenticated user from creating a campground
+2. Save username+id to newly created campground
+
+- PREVENT UNAUTHENTICATED CREATION
+- we added the `isLoggedIn` middleware to NEW and CREATE routes
+```js
+// routes/campgrounds.js
+var express = require("express");
+var router  = express.Router();
+var Campground = require("../models/campground");
+
+//INDEX - show all campgrounds
+router.get("/", function(req, res){
+    // Get all campgrounds from DB
+    Campground.find({}, function(err, allCampgrounds){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("campgrounds/index",{campgrounds:allCampgrounds});
+       }
+    });
+});
+
+//CREATE - add new campground to DB
+router.post("/", isLoggedIn, function(req, res){
+    // get data from form and add to campgrounds array
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var newCampground = {name: name, image: image, description: desc}
+    // Create a new campground and save to DB
+    Campground.create(newCampground, function(err, newlyCreated){
+        if(err){
+            console.log(err);
+        } else {
+            //redirect back to campgrounds page
+            res.redirect("/campgrounds");
+        }
+    });
+});
+
+//NEW - show form to create new campground
+router.get("/new", isLoggedIn,function(req, res){
+   res.render("campgrounds/new"); 
+});
+
+// SHOW - shows more info about one campground
+router.get("/:id", function(req, res){
+    //find the campground with provided ID
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+        if(err){
+            console.log(err);
+        } else {
+            console.log(foundCampground)
+            //render show template with that campground
+            res.render("campgrounds/show", {campground: foundCampground});
+        }
+    });
+});
+
+//middleware
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
+
+module.exports = router;
+```
+
+- CHANGE CAMPGROUND MODEL
+- we added an author key
+```js
+// models/campground.js
+var mongoose = require("mongoose");
+
+var campgroundSchema = new mongoose.Schema({
+   name: String,
+   image: String,
+   description: String,
+   author: {
+      id: {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "User"
+      },
+      username: String
+   },
+   comments: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Comment"
+      }
+   ]
+});
+
+module.exports = mongoose.model("Campground", campgroundSchema);
+```
+
+- CHANGE CAMPGROUND ROUTE
+- we changed the EDIT route to grab info about current user to associate it with the campground
+- we create a new author object to pass to the campground
+```js
+// routes/campground.js
+var express = require("express");
+var router  = express.Router();
+var Campground = require("../models/campground");
+
+//INDEX - show all campgrounds
+router.get("/", function(req, res){
+    // Get all campgrounds from DB
+    Campground.find({}, function(err, allCampgrounds){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("campgrounds/index",{campgrounds:allCampgrounds});
+       }
+    });
+});
+
+//CREATE - add new campground to DB
+router.post("/", isLoggedIn, function(req, res){
+    // get data from form and add to campgrounds array
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
+    var newCampground = {name: name, image: image, description: desc, author:author}
+    // Create a new campground and save to DB
+    Campground.create(newCampground, function(err, newlyCreated){
+        if(err){
+            console.log(err);
+        } else {
+            //redirect back to campgrounds page
+            console.log(newlyCreated);
+            res.redirect("/campgrounds");
+        }
+    });
+});
+
+//NEW - show form to create new campground
+router.get("/new", isLoggedIn, function(req, res){
+   res.render("campgrounds/new"); 
+});
+
+// SHOW - shows more info about one campground
+router.get("/:id", function(req, res){
+    //find the campground with provided ID
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+        if(err){
+            console.log(err);
+        } else {
+            console.log(foundCampground)
+            //render show template with that campground
+            res.render("campgrounds/show", {campground: foundCampground});
+        }
+    });
+});
+
+
+//middleware
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
+
+module.exports = router;
+```
+
+- ADD SUBMITTED BY AUTHOR LINE
+- we added a submitted by author line
+```js
+// views/campgrounds/show.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                    <p>
+                        <em>Submitted By <%= campground.author.username %></em>
+                    </p>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                           
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
 
 # Section 35 YelpCamp: Update and Destroy
 ## Intro to New YelpCamp Features
