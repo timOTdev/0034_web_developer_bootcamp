@@ -8757,14 +8757,6 @@ router.get("/logout", function(req, res){
    res.redirect("/campgrounds");
 });
 
-//middleware
-function isLoggedIn(req, res, next){
-    if(req.isAuthenticated()){
-        return next();
-    }
-    res.redirect("/login");
-}
-
 module.exports = router;
 ```
 
@@ -8943,6 +8935,7 @@ module.exports = router;
 
 <% include ../partials/footer %>
 ```
+
 ## YelpCamp: User Associations: Campground
 1. Prevent an unauthenticated user from creating a campground
 2. Save username+id to newly created campground
@@ -9172,13 +9165,1187 @@ module.exports = router;
 
 # Section 35 YelpCamp: Update and Destroy
 ## Intro to New YelpCamp Features
+- we will add edit and delete button for campgrounds and comments
+- we'll add in authorization afterwards
+- we are working in V10
+
 ## Campground Edit and Update
+1. Add Method-Override
+2. Add Edit Route for Campgrounds
+3. Add Link to Edit Page
+4. Add Update Route
+5. Fix $set problem
+
+- CONFIGURE METHOD OVERRIDE
+- we need to npm install method-override first
+- we add require and app.use statements
+```js
+// app.js
+var express     = require("express"),
+    app         = express(),
+    bodyParser  = require("body-parser"),
+    mongoose    = require("mongoose"),
+    passport    = require("passport"),
+    LocalStrategy = require("passport-local"),
+    methodOverride = require("method-override"),
+    Campground  = require("./models/campground"),
+    Comment     = require("./models/comment"),
+    User        = require("./models/user"),
+    seedDB      = require("./seeds")
+    
+//requiring routes
+var commentRoutes    = require("./routes/comments"),
+    campgroundRoutes = require("./routes/campgrounds"),
+    indexRoutes      = require("./routes/index")
+    
+mongoose.connect("mongodb://localhost/yelp_camp_v10");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
+app.use(methodOverride("_method"));
+// seedDB(); //seed the database
+
+// PASSPORT CONFIGURATION
+app.use(require("express-session")({
+    secret: "Once again Rusty wins cutest dog!",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use(function(req, res, next){
+   res.locals.currentUser = req.user;
+   next();
+});
+
+app.use("/", indexRoutes);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/comments", commentRoutes);
+
+
+app.listen(process.env.PORT, process.env.IP, function(){
+   console.log("The YelpCamp Server Has Started!");
+});
+```
+
+- CREATE EDIT AND DESTROY ROUTES
+```js
+var express = require("express");
+var router  = express.Router();
+var Campground = require("../models/campground");
+var middleware = require("../middleware");
+
+
+//INDEX - show all campgrounds
+router.get("/", function(req, res){
+    // Get all campgrounds from DB
+    Campground.find({}, function(err, allCampgrounds){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("campgrounds/index",{campgrounds:allCampgrounds});
+       }
+    });
+});
+
+//CREATE - add new campground to DB
+router.post("/", isLoggedIn, function(req, res){
+    // get data from form and add to campgrounds array
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
+    var newCampground = {name: name, image: image, description: desc, author:author}
+    // Create a new campground and save to DB
+    Campground.create(newCampground, function(err, newlyCreated){
+        if(err){
+            console.log(err);
+        } else {
+            //redirect back to campgrounds page
+            console.log(newlyCreated);
+            res.redirect("/campgrounds");
+        }
+    });
+});
+
+//NEW - show form to create new campground
+router.get("/new", isLoggedIn, function(req, res){
+   res.render("campgrounds/new"); 
+});
+
+// SHOW - shows more info about one campground
+router.get("/:id", function(req, res){
+    //find the campground with provided ID
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+        if(err){
+            console.log(err);
+        } else {
+            console.log(foundCampground)
+            //render show template with that campground
+            res.render("campgrounds/show", {campground: foundCampground});
+        }
+    });
+});
+
+// EDIT CAMPGROUND ROUTE
+router.get("/:id/edit",  function(req, res){
+    Campground.findById(req.params.id, function(err, foundCampground){
+        res.render("campgrounds/edit", {campground: foundCampground});
+    });
+});
+
+// UPDATE CAMPGROUND ROUTE
+router.put("/:id",  function(req, res){
+    // find and update the correct campground
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
+       if(err){
+           res.redirect("/campgrounds");
+       } else {
+           //redirect somewhere(show page)
+           res.redirect("/campgrounds/" + req.params.id);
+       }
+    });
+});
+
+// DESTROY CAMPGROUND ROUTE
+
+// MIDDLEWARE
+function isLoggedIn(req, res, next){
+  if(req.isAuthenticated()){
+    return next();
+  }
+  res.redirect("/login");
+})
+
+module.exports = router;
+```
+
+- CREATING AN EDIT VIEW
+- we need to make the correct PUT request to routes
+```js
+// views/campgrounds/edit.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <h1 style="text-align: center">Edit <%= campground.name %></h1>
+        <div style="width: 30%; margin: 25px auto;">
+            <form action="/campgrounds/<%= campground._id %>?_method=PUT" method="POST">
+                <div class="form-group">
+                    <input class="form-control" type="text" name="campground[name]" value="<%= campground.name %>">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" type="text" name="campground[image]" value="<%= campground.image %>">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" type="text" name="campground[description]" value="<%= campground.description %>">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-lg btn-primary btn-block">Submit!</button>
+                </div>
+            </form>
+            <a href="/campgrounds">Go Back</a>
+        </div>
+    </div>
+</div>
+<% include ../partials/footer %>
+```
+
+- ADDING EDIT BUTTON
+```js
+// views/campgrounds/how.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                    <p>
+                        <em>Submitted By <%= campground.author.username %></em>
+                    </p>
+                    <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                            <a class="btn btn-xs btn-warning" 
+                               href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
+                            <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
+                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                            </form>
+                        <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
+
 ## Campground Destroy
+1. Add Destory Route
+2. Add Delete button
+
+- ADD DESTROY ROUTE
+- we added the destroy route
+```js
+var express = require("express");
+var router  = express.Router();
+var Campground = require("../models/campground");
+var middleware = require("../middleware");
+
+
+//INDEX - show all campgrounds
+router.get("/", function(req, res){
+    // Get all campgrounds from DB
+    Campground.find({}, function(err, allCampgrounds){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("campgrounds/index",{campgrounds:allCampgrounds});
+       }
+    });
+});
+
+//CREATE - add new campground to DB
+router.post("/", isLoggedIn, function(req, res){
+    // get data from form and add to campgrounds array
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
+    var newCampground = {name: name, image: image, description: desc, author:author}
+    // Create a new campground and save to DB
+    Campground.create(newCampground, function(err, newlyCreated){
+        if(err){
+            console.log(err);
+        } else {
+            //redirect back to campgrounds page
+            console.log(newlyCreated);
+            res.redirect("/campgrounds");
+        }
+    });
+});
+
+//NEW - show form to create new campground
+router.get("/new", isLoggedIn, function(req, res){
+   res.render("campgrounds/new"); 
+});
+
+// SHOW - shows more info about one campground
+router.get("/:id", function(req, res){
+    //find the campground with provided ID
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+        if(err){
+            console.log(err);
+        } else {
+            console.log(foundCampground)
+            //render show template with that campground
+            res.render("campgrounds/show", {campground: foundCampground});
+        }
+    });
+});
+
+// EDIT CAMPGROUND ROUTE
+router.get("/:id/edit", function(req, res){
+    Campground.findById(req.params.id, function(err, foundCampground){
+        res.render("campgrounds/edit", {campground: foundCampground});
+    });
+});
+
+// UPDATE CAMPGROUND ROUTE
+router.put("/:id", function(req, res){
+    // find and update the correct campground
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
+       if(err){
+           res.redirect("/campgrounds");
+       } else {
+           //redirect somewhere(show page)
+           res.redirect("/campgrounds/" + req.params.id);
+       }
+    });
+});
+
+// DESTROY CAMPGROUND ROUTE
+router.delete("/:id", function(req, res){
+   Campground.findByIdAndRemove(req.params.id, function(err){
+      if(err){
+          res.redirect("/campgrounds");
+      } else {
+          res.redirect("/campgrounds");
+      }
+   });
+});
+
+// MIDDLEWARE
+function isLoggedIn(req, res, next){
+  if(req.isAuthenticated()){
+    return next();
+  }
+  res.redirect("/login");
+})
+
+module.exports = router;
+```
+
+- ADDING DELETE BUTTON
+- we have a to make a form because we need to use a form to send a POST request with method override of delete
+```js
+// views/campgrounds/show.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                    <p>
+                        <em>Submitted By <%= campground.author.username %></em>
+                    </p>
+                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-xs btn-danger">Delete</button>
+                        </form>
+                    <% }%>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                            <a class="btn btn-xs btn-warning" 
+                               href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
+                            <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
+                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                            </form>
+                        <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
+
+- MAKING THE DELETE BUTTON INLINE
+- we add an id to the form and add css to it
+```css
+/* public/stylesheets/main.css */
+#delete-form {
+  display: inline;
+}
+```
+
+## Note about Campground Authorization
+Hi Everyone!
+
+In the next couple of lectures you will learn how to authorize a user by using the author property on a campground.
+
+The seeded data in your seeds.js file does not have an author, so this will throw a Cannot read property 'equals' of undefined error if you try to view a seeded campground while logged in.
+
+The solution for this is to comment out the seedDB() function call in your app.js file then delete any seeded campgrounds and comments from the database.
+
+-------
+Thanks,
+Ian
+
+Follow me on [YouTube](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
+
 ## Campground Authorization Part 1
+1. User can only edit his/her campgrounds
+2. User can only delete his/her campgrounds
+3. Hide/Show edit and delete buttons
+- Authentication is for registration, authorization is their permissions
+- we will hide the buttons and also have middleware to authorize
+
+- CHECK EDIT FORM WITH AUTHORIZATION
+- we check if user is logged in, then if user owns campground, then let them edit/delete campground
+- we are not using isLoggedIn middleware because we will be writing our own
+
+- `foundCampground.author.id` and `req.user._id` look identical but former is a mongoose object, and latter is a string
+- so we use the native mongoose method to check if they are equal
+
+- we can now use `res.redirect("back")` to take the user to the previous page
+```js
+// routes/campgrounds.js
+var express = require("express");
+var router  = express.Router();
+var Campground = require("../models/campground");
+var middleware = require("../middleware");
+
+
+//INDEX - show all campgrounds
+router.get("/", function(req, res){
+    // Get all campgrounds from DB
+    Campground.find({}, function(err, allCampgrounds){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("campgrounds/index",{campgrounds:allCampgrounds});
+       }
+    });
+});
+
+//CREATE - add new campground to DB
+router.post("/", middleware.isLoggedIn, function(req, res){
+    // get data from form and add to campgrounds array
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
+    var newCampground = {name: name, image: image, description: desc, author:author}
+    // Create a new campground and save to DB
+    Campground.create(newCampground, function(err, newlyCreated){
+        if(err){
+            console.log(err);
+        } else {
+            //redirect back to campgrounds page
+            console.log(newlyCreated);
+            res.redirect("/campgrounds");
+        }
+    });
+});
+
+//NEW - show form to create new campground
+router.get("/new",  isLoggedIn, function(req, res){
+   res.render("campgrounds/new"); 
+});
+
+// SHOW - shows more info about one campground
+router.get("/:id", function(req, res){
+    //find the campground with provided ID
+    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+        if(err){
+            console.log(err);
+        } else {
+            console.log(foundCampground)
+            //render show template with that campground
+            res.render("campgrounds/show", {campground: foundCampground});
+        }
+    });
+});
+
+// EDIT CAMPGROUND ROUTE
+router.get("/:id/edit",  checkCampgroundOwnership, function(req, res){
+    Campground.findById(req.params.id, function(err, foundCampground){
+        res.render("campgrounds/edit", {campground: foundCampground});
+    });
+});
+
+// UPDATE CAMPGROUND ROUTE
+router.put("/:id", checkCampgroundOwnership, function(req, res){
+    // find and update the correct campground
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
+       if(err){
+           res.redirect("/campgrounds");
+       } else {
+           //redirect somewhere(show page)
+           res.redirect("/campgrounds/" + req.params.id);
+       }
+    });
+});
+
+// DESTROY CAMPGROUND ROUTE
+router.delete("/:id", checkCampgroundOwnership, function(req, res){
+   Campground.findByIdAndRemove(req.params.id, function(err){
+      if(err){
+          res.redirect("/campgrounds");
+      } else {
+          res.redirect("/campgrounds");
+      }
+   });
+});
+
+// middleware
+checkCommentOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Comment.findById(req.params.comment_id, function(err, foundComment){
+           if(err){
+               res.redirect("back");
+           }  else {
+               // does user own the comment?
+            if(foundComment.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        res.redirect("back");
+    }
+}
+
+function isLoggedIn(req, res, next){
+  if(req.isAuthenticated()){
+    return next();
+  }
+  res.redirect("/login");
+})
+
+module.exports = router;
+```
+
 ## Campground Authorization Part 2
+- HIDE EDIT/DELETE BUTTONS
+- we check if there is a current user and then if it is a match with campground creator
+```js
+// views/campground/show.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                    <p>
+                        <em>Submitted By <%= campground.author.username %></em>
+                    </p>
+                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-xs btn-danger">Delete</button>
+                        </form>
+                    <% }%>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                            <a class="btn btn-xs btn-warning" 
+                               href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
+                            <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
+                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                            </form>
+                        <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
+
 ## Comment Edit and Update
+1. Add Edit route for comments
+2. Add Edit button
+3. Add Update route
+
+- ADDING COMMENT EDIT ROUTE
+- editing comments is a nested route IE `/campgrounds/:id/comments/:comment_id/edit
+- but we will only actually use `/:comment_id/edit` due to the app.use statement in app.js
+```js
+// routes/comments.js
+var express = require("express");
+var router  = express.Router({mergeParams: true});
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+
+//Comments New
+router.get("/new",isLoggedIn, function(req, res){
+    // find campground by id
+    console.log(req.params.id);
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else {
+             res.render("comments/new", {campground: campground});
+        }
+    })
+});
+
+//Comments Create
+router.post("/", isLoggedIn,function(req, res){
+   //lookup campground using ID
+   Campground.findById(req.params.id, function(err, campground){
+       if(err){
+           console.log(err);
+           res.redirect("/campgrounds");
+       } else {
+        Comment.create(req.body.comment, function(err, comment){
+           if(err){
+               console.log(err);
+           } else {
+               //add username and id to comment
+               comment.author.id = req.user._id;
+               comment.author.username = req.user.username;
+               //save comment
+               comment.save();
+               campground.comments.push(comment);
+               campground.save();
+               console.log(comment);
+               res.redirect('/campgrounds/' + campground._id);
+           }
+        });
+       }
+   });
+});
+
+// COMMENT EDIT ROUTE
+router.get("/:comment_id/edit", function(req, res){
+   Comment.findById(req.params.comment_id, function(err, foundComment){
+      if(err){
+          res.redirect("back");
+      } else {
+        res.render("comments/edit", {campground_id: req.params.id, comment: foundComment});
+      }
+   });
+});
+
+// COMMENT UPDATE
+router.put("/:comment_id", function(req, res){
+   Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment){
+      if(err){
+          res.redirect("back");
+      } else {
+          res.redirect("/campgrounds/" + req.params.id);
+      }
+   });
+});
+
+module.exports = router;
+```
+
+- ADD COMMENT'S EDIT.EJS
+- adds form to edit the comment
+```js
+// views/comments/edit.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <h1 style="text-align: center">Edit Comment</h1>
+        <div style="width: 30%; margin: 25px auto;">
+            <form action="/campgrounds/<%= campground_id %>/comments/<%= comment._id %>?_method=PUT" method="POST">
+                <div class="form-group">
+                    <input class="form-control" type="text" name="comment[text]" value="<%= comment.text %>">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-lg btn-primary btn-block">Submit!</button>
+                </div>
+            </form>
+            <a href="/campgrounds">Go Back</a>
+        </div>
+    </div>
+</div>
+<% include ../partials/footer %>
+```
+
+- ADD EDIT BUTTON TO SHOW PAGE
+- shows the edit button on the single campground page
+```js
+// views/campgrounds/show.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                    <p>
+                        <em>Submitted By <%= campground.author.username %></em>
+                    </p>
+                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-xs btn-danger">Delete</button>
+                        </form>
+                    <% }%>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                            <a class="btn btn-xs btn-warning" 
+                               href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
+                            <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
+                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                            </form>
+                        <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
+
+## Note about Comment Destroy Lecture
+Hi Everyone!
+
+In the next lecture, around the 4 minute and 30 second mark, Colt uses an id to change the style of the delete button on the campground show page. 
+
+He actually uses this id twice, once on line 24 and again on line 46, which breaks the rule where you're only supposed to use id's once per HTML document.
+
+This can easily be fixed by changing the CSS rule (in your stylesheet) from an id to a class, 
+e.g., #delete-form  to .delete-form then changing both lines of the HTML (24 and 46) 
+from id="delete-form"  to class="delete-form" 
+
+Please let me know if you have any questions.
+
+Cheers,
+Ian
+Course TA
+
 ## Comment Destroy
+1. Add Destroy route
+2. Add Delete button
+
+- DESTROY ROUTE COMPARISON 
+- Campground Destroy Route: /campgrounds/:id
+- Comment Destroy Route: /campgrounds/:id/comments/:comment_id
+
+- CREATE DESTROY ROUTE
+
+```js
+// routes/comments.ejs
+var express = require("express");
+var router  = express.Router({mergeParams: true});
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+var middleware = require("../middleware");
+
+//Comments New
+router.get("/new",isLoggedIn, function(req, res){
+    // find campground by id
+    console.log(req.params.id);
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else {
+             res.render("comments/new", {campground: campground});
+        }
+    })
+});
+
+//Comments Create
+router.post("/",isLoggedIn,function(req, res){
+   //lookup campground using ID
+   Campground.findById(req.params.id, function(err, campground){
+       if(err){
+           console.log(err);
+           res.redirect("/campgrounds");
+       } else {
+        Comment.create(req.body.comment, function(err, comment){
+           if(err){
+               console.log(err);
+           } else {
+               //add username and id to comment
+               comment.author.id = req.user._id;
+               comment.author.username = req.user.username;
+               //save comment
+               comment.save();
+               campground.comments.push(comment);
+               campground.save();
+               console.log(comment);
+               res.redirect('/campgrounds/' + campground._id);
+           }
+        });
+       }
+   });
+});
+
+// COMMENT EDIT ROUTE
+router.get("/:comment_id/edit", function(req, res){
+   Comment.findById(req.params.comment_id, function(err, foundComment){
+      if(err){
+          res.redirect("back");
+      } else {
+        res.render("comments/edit", {campground_id: req.params.id, comment: foundComment});
+      }
+   });
+});
+
+// COMMENT UPDATE
+router.put("/:comment_id", function(req, res){
+   Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment){
+      if(err){
+          res.redirect("back");
+      } else {
+          res.redirect("/campgrounds/" + req.params.id );
+      }
+   });
+});
+
+// COMMENT DESTROY ROUTE
+router.delete("/:comment_id", function(req, res){
+    //findByIdAndRemove
+    Comment.findByIdAndRemove(req.params.comment_id, function(err){
+       if(err){
+           res.redirect("back");
+       } else {
+           res.redirect("/campgrounds/" + req.params.id);
+       }
+    });
+});
+
+module.exports = router;
+```
+
+- ADDING BUTTON TO DELETE COMMENT
+- we still need to use method-override to send the delete request
+- remember, we need to use a form tag also
+- we add an id to make it display inline, there is a duplicate id with the delete campgrounds button but I already know how to differentiate in CSS
+```js
+// views/campgrounds/show.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                    <p>
+                        <em>Submitted By <%= campground.author.username %></em>
+                    </p>
+                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-xs btn-danger">Delete</button>
+                        </form>
+                    <% }%>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                            <a class="btn btn-xs btn-warning" 
+                               href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
+                            <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
+                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                            </form>
+                        <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
+
 ## Comment Authorization
+1. User can only edit his/her comments
+2. User can only delete his/her comments
+3. Hide/Show edit and delete buttons
+4. Refactor Middleware
+
+- LIMIT EDIT/DELETE ABILITY TO USER
+- we will add check comment ownership middleware
+- we also have a lot of res.redirect("back") but we will be sending different messages in impending videos
+- we wrote a middleware called checkCampgroundOwnership
+- we tagged the edit, update, and destroy routes with the middleware
+```js
+// routes/comments.js
+var express = require("express");
+var router  = express.Router({mergeParams: true});
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+var middleware = require("../middleware");
+
+//Comments New
+router.get("/new", isLoggedIn, function(req, res){
+    // find campground by id
+    console.log(req.params.id);
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else {
+             res.render("comments/new", {campground: campground});
+        }
+    })
+});
+
+//Comments Create
+router.post("/",isLoggedIn,function(req, res){
+   //lookup campground using ID
+   Campground.findById(req.params.id, function(err, campground){
+       if(err){
+           console.log(err);
+           res.redirect("/campgrounds");
+       } else {
+        Comment.create(req.body.comment, function(err, comment){
+           if(err){
+               console.log(err);
+           } else {
+               //add username and id to comment
+               comment.author.id = req.user._id;
+               comment.author.username = req.user.username;
+               //save comment
+               comment.save();
+               campground.comments.push(comment);
+               campground.save();
+               console.log(comment);
+               res.redirect('/campgrounds/' + campground._id);
+           }
+        });
+       }
+   });
+});
+
+// COMMENT EDIT ROUTE
+router.get("/:comment_id/edit", checkCommentOwnership, function(req, res){
+   Comment.findById(req.params.comment_id, function(err, foundComment){
+      if(err){
+          res.redirect("back");
+      } else {
+        res.render("comments/edit", {campground_id: req.params.id, comment: foundComment});
+      }
+   });
+});
+
+// COMMENT UPDATE
+router.put("/:comment_id", checkCommentOwnership, function(req, res){
+   Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment){
+      if(err){
+          res.redirect("back");
+      } else {
+          res.redirect("/campgrounds/" + req.params.id );
+      }
+   });
+});
+
+// COMMENT DESTROY ROUTE
+router.delete("/:comment_id", checkCommentOwnership, function(req, res){
+    //findByIdAndRemove
+    Comment.findByIdAndRemove(req.params.comment_id, function(err){
+       if(err){
+           res.redirect("back");
+       } else {
+           res.redirect("/campgrounds/" + req.params.id);
+       }
+    });
+});
+
+// MIDDLEWARE
+function checkCommentOwnership(req, res, next) {
+ if(req.isAuthenticated()){
+        Comment.findById(req.params.comment_id, function(err, foundComment){
+           if(err){
+               res.redirect("back");
+           }  else {
+               // does user own the comment?
+            if(foundComment.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        res.redirect("back");
+    }
+}
+
+module.exports = router;
+```
+
+- HIDE EDIT/DELETE BUTTONS
+- now we'll hide the buttons if they are not authenticated and specific user
+```js
+// views/campgrounds/show.ejs
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">YelpCamp</p>
+            <div class="list-group">
+                <li class="list-group-item active">Info 1</li>
+                <li class="list-group-item">Info 2</li>
+                <li class="list-group-item">Info 3</li>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="img-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right">$9.00/night</h4>
+                    <h4><a><%=campground.name%></a></h4>
+                    <p><%= campground.description %></p>
+                    <p>
+                        <em>Submitted By <%= campground.author.username %></em>
+                    </p>
+                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-xs btn-danger">Delete</button>
+                        </form>
+                    <% }%>
+                </div>
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong><%= comment.author.username %></strong>
+                            <span class="pull-right">10 days ago</span>
+                            <p>
+                                <%= comment.text %> 
+                            </p>
+                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                            <a class="btn btn-xs btn-warning" 
+                               href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
+                            <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
+                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                            </form>
+                        <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer %>
+```
+
+- PROBLEM WITH UNEXPECTED ERROR
+- basically, node and npm are out of date
+- you can run `nvm install node` and then `nvm use node`
+- these will update both node and npm at the same time and take care of this error
+- nvm is node version manager
 
 # Section 36 YelpCamp: UI Improvements
 ## Refactoring Middleware
