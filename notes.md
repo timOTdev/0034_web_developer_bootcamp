@@ -11356,12 +11356,167 @@ Course TA
 
 # Section 38 Deploying
 ## Intro to Deploying and Heroku
+- we want to deploy outside of cloud 9 since it's not designed for deployment
+- we will be using heroku, a service that we use to deploy apps
+- similar to nodejitsu, digital ocean, and modulo
+- heroku is used by big companies and has a good free plan
+- when you deploy, you're running your app on a server somewhere for 24/7
+- Amazon AWS, Heroku are now part of new surge that rents you out server space
+- we will deploy a simple app and then yelp camp next
+
 ## Deploying a Simple App Part 1
+- Created a new project folder deployDemo
+- Installed `npm install express ejs --save`
+- Don't forget to --save because Heroku needs to know what to install
+- Make app.js, views directory, views/home.ejs, views/about.ejs
+- very simple app, we are just trying to practice deploying
+
+- FILE CONTENTS
+```js
+// app.js
+var express = require("express");
+var app = express();
+
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res){
+    res.render("home");
+});
+
+app.get("/about", function(req, res){
+    res.render("about");
+});
+
+app.listen(process.env.PORT, process.env.IP);
+
+// views/home.ejs
+<h1>Home Page</h1>
+
+<a href="/about">Go to About Page</a>
+
+// views/about.ejs
+<h1>About</h1>
+
+<a href="/">Go to Home Page</a>
+```
+
 ## Deploying a Simple App Part 2
+- Sign up for account at [Heroku](https://www.heroku.com/)
+- You can watch the video or follow the tutorial
+- We don't have to download Toolbelt but it will be used since C9 has it pre-installed
+
+- LOGIN PROCESS
+- `heroku login` gets you logged in for the specific project 
+
+- RUN NPM INIT
+- run `npm init` in root project folder
+- add all the files and commit files
+
+- CREATE HEROKU SPACE
+- `heroku create` makes a new project on heroku servers
+- it will give you a random name but you can change it later
+- you can also have your own domain
+- it also added a git remote to push code, run `git remote -v`
+- `git push heroku master` to push your code
+
+- COMMON ERRORS
+- all you see is "Application Error" if you have a problem
+- you can view error messages in the command line, run `heroku logs`
+- in the video, we need to add a start script, commit, and push it
+```js
+// package.json
+{
+  "name": "deploydemo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.5.8",
+    "express": "^4.16.3"
+  }
+}
+```
+
 ## Deploying YelpCamp: Basics
+- we will deploy YelpCamp via Heroku
+- it's the same process as before but we need to learn how to run database also
+- make sure you turn off mongod first
+- I ran: `npm init`, `git add .`, `git commit -m "Initial deploy commit"`, `heroku auth:login`, `git push heroku master`
+- we will get an error because we have not handled mongodb yet
+- we can run `heroku logs`
+
+- HEROKU SERVER COMMANDS
+- `heroku run <normal commands>`
+
 ## Note about MongoLab
+Hi Everyone!
+
+In the next lecture you will learn about hosting your database with a service called MongoLab.
+
+Since this lecture was recorded, MongoLab has changed their name to mLab, you can now find their website at www.mlab.com
+
+Also, when entering your mLab credentials into the URI that you'll use in the app, be sure not to use special characters in your username or password as they will throw an error.
+
+Thanks,
+Ian
+Course TA
+
 ## Deploying YelpCamp: MongoLab
+- we are going to use mongolab, now "mLab" is a mongoDB hosted database
+- we use amazon AWS and free sandbox plan
+- we need to set up a user that is a developer connect to this database
+- copy: `mongoose.connect("mongodb://<dbuser>:<dbpassword>@ds239359.mlab.com:39359/timh1203_yelpcamp")`
+- paste in our app.js with a new user
+
+- CONNECTING WITH MLAB 
+- we will be running the c9 yelpcamp and connected to the mlab database
+- we are just testing this, not an actual production step
+- the campgrounds will be empty once you have this loaded since it's a new database
+- afterwards, pushes the new changes to the heroku repo
+- the process isn't always smooth so make sure you deploy early
+
 ## Environment Variables
+- it's not good to have the online base while you are developing
+- you might delete database by accident
+- you want to keep these environments separately
+- Colt ran both the heroku site and our c9 site to show that they are linked
+- it's a lot of headache if items across Heroku's DB and C9's DB are not same also
+- another benefit environment variables are also not exposed
+- this is not limited to node, but syntax is similar in ruby and python
+
+- SOLUTION
+- write code to say that if we are in production, run C9 and run Heroku's if deployed
+- it involves `process.env.PORT, process.env.IP`
+- PORT and IP on C9 is different than Heroku
+- these items are not hardcoded and meant to be changed
+
+- SETTING LOCAL ENVIRONMENT
+- open command line on C9, type `export DATABASEURL=mongodb://localhost/yelp_camp`
+- to check if that works, we add `console.log(process.env.DATABASEURL);` to app.js
+- then we change mongoose.connect(process.env.DATABASEURL);
+- we then add and commit and push to Heroku's repo
+- we will get an error on Heroku since we have not set up the environment variable on there
+
+- SETTING HEROKU ENVIRONMENT
+- there are several ways to do this
+1. We can change it in "config variables" in Heroku's settings
+- set the DATABASEURL key, and heroku's long url as the value
+- it should now work
+2. Do it via command line with `heroku config:set DATABASEURL=mongodb://<dbuser>:<dbpassword>@ds239359.mlab.com:39359/timh1203_yelpcam`
+
+- SETTING UP A BACKUP URL
+- if the Heroku's database is screwed up, it can at least default to something else
+```js
+// app.js
+var url = process.env.DATABASEURL || "mongodb://localhost/yelp_camp"
+mongoose.connect(url);
+```
 
 # Section 39 JavaScript: The Tricky Stuff
 Keyword This 1 - Introduction and Global
