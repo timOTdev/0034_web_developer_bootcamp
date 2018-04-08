@@ -10349,66 +10349,1019 @@ module.exports = router;
 
 # Section 36 YelpCamp: UI Improvements
 ## Refactoring Middleware
+
+- we are using middleware everywhere and duplicating the middleware on routes
+- make index.js into new folder called middleware
+- we can use index.js as opposed to middleware.js because [fillme]
+- you can declare with dot notation, keys within an object, or setting module.exports as an object
+```js
+// USING DOT NOTATION
+var middlewareObj = {};
+
+middlewareObj.checkCampgroundOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Campground.findById(req.params.id, function(err, foundCampground){
+           if(err){
+               res.redirect("back");
+           }  else {
+               // does user own the campground?
+            if(foundCampground.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        res.redirect("back");
+    }
+}
+
+// USING KEY CREATION WITHIN AN OBJECT
+var middlewareObj = {
+  checkCampgroundOwnership: function(){
+  }
+};
+
+module.exports = middlewareObj;
+
+// SETTING MODULE.EXPORTS AS OBJECT
+module.exports = {
+  checkCampgroundOwnership: function(){
+  }
+}
+```
+
+- WE ARE USING KEY CREATION
+```js
+// middleware/index.js
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+
+// all the middleare goes here
+var middlewareObj = {};
+
+middlewareObj.checkCampgroundOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Campground.findById(req.params.id, function(err, foundCampground){
+           if(err){
+               res.redirect("back");
+           }  else {
+               // does user own the campground?
+            if(foundCampground.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        res.redirect("back");
+    }
+}
+
+middlewareObj.checkCommentOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Comment.findById(req.params.comment_id, function(err, foundComment){
+           if(err){
+               res.redirect("back");
+           }  else {
+               // does user own the comment?
+            if(foundComment.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        res.redirect("back");
+    }
+}
+
+middlewareObj.isLoggedIn = function(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect("/login");
+}
+
+module.exports = middlewareObj;
+```
+
+- WHY WE NAME MIDDLEWARE TO INDEX.JS
+- normal is `var middleware = require("../middleware/index.js")'`
+- we can shorten to `var middleware = require("../middleware");` because index.js is a special name reserved for this file
+- Official explanation: it enables us to make our code a bit shorter and simpler without having to write the "index.js" file name since it's automatically looked up if not defined.
+
+- CAMPGROUNDS.JS ROUTE
+- now, we need to add `middleware.` in front of each middleware check in the campground and comments routes
+```js
+// routes/campgrounds.js
+var express = require("express");
+var router = express.Router();
+var Campground = require("../models/campground");
+var middleware = require("../middleware");
+
+// INDEX - show all campgrounds
+router.get("/", function(req, res){
+  Campground.find({}, function(err, allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds/index", {campgrounds: allCampgrounds});
+    }
+  });
+});
+
+// CREATE - add new campground to DB
+router.post("/", middleware.isLoggedIn, function(req, res){
+    var name = req.body.name;
+    var image = req.body.image;
+    var desc = req.body.description;
+    var author = {
+      id: req.user._id,
+      username: req.user.username
+    }
+    var newCampground = {name: name, image: image, description: desc, author: author};
+    Campground.create(newCampground, function(err, newlyCreated){
+      if(err){
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      }
+    });
+});
+
+// NEW - show form to create new campground
+router.get("/new", middleware.isLoggedIn, function(req, res){
+    res.render("campgrounds/new");
+});
+
+// SHOW - shows more info about one campground
+router.get("/:id", function(req, res){
+  Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+      if(err){
+          console.log(err);
+          console.log(foundCampground);
+      } else {
+        console.log(foundCampground);
+          res.render("campgrounds/show", {campground: foundCampground});
+      }
+  });
+});
+
+// EDIT CAMPGROUND ROUTE
+router.get("/:id/edit", middleware.checkCampgroundOwnership, function(req, res){
+  Campground.findById(req.params.id, function (err,foundCampground){
+    res.render("campgrounds/edit", {campground: foundCampground});  
+  });
+});
+
+// UPDATE CAMPGROUND ROUTE
+router.put("/:id", middleware.checkCampgroundOwnership, function(req, res){
+   Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
+     if(err){
+       res.redirect("/campgrounds");
+     } else {
+       res.redirect("/campgrounds/" + req.params.id);
+     }
+   });
+});
+
+// DESTROY CAMPGROUND ROUTE
+router.delete("/:id", middleware.checkCampgroundOwnership, function(req, res){
+  Campground.findByIdAndRemove(req.params.id, function(err){
+    if(err){
+      res.redirect("/campgrounds");
+    } else {
+      res.redirect("/campgrounds");
+    }
+  });
+});
+
+module.exports = router;
+```
+
+- COMMENTS.JS ROUTE
+```js
+// routes/comments.js
+var express = require("express");
+var router = express.Router({mergeParams: true});
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+var middleware = require("../middleware");
+
+// ==========================
+// COMMENTS ROUTES
+// ==========================
+router.get("/new", middleware.isLoggedIn, function(req, res){
+  Campground.findById(req.params.id, function(err, campground){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("comments/new", {campground: campground});
+    }
+  });
+});
+
+router.post("/", middleware.isLoggedIn, function(req, res){
+  Campground.findById(req.params.id, function(err, campground){
+    if(err){
+      console.log(err);
+      res.redirect("/campgrounds");
+    } else {
+      Comment.create(req.body.comment, function(err, comment){
+        if(err){
+          console.log(err);
+        } else {
+          comment.author.id = req.user.id;
+          comment.author.username = req.user.username;
+          comment.save();
+          
+          campground.comments.push(comment);
+          campground.save();
+          res.redirect("/campgrounds/" + campground._id);
+        }
+      });
+    }
+  });
+});
+
+// COMMENT EDIT ROUTE
+router.get("/:comment_id/edit", middleware.checkCommentOwnership, function(req, res){
+  Comment.findById(req.params.comment_id, function(err, foundComment){
+    if(err){
+      res.redirect("back");
+    } else {
+      res.render("comments/edit", {campground_id: req.params.id, comment: foundComment});
+    }
+  });
+});
+
+
+// COMMENT UPDATE
+router.put("/:comment_id", middleware.checkCommentOwnership, function(req, res){
+  Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment){
+    if(err){
+      res.redirect("back");
+    } else {
+      res.redirect("/campgrounds/" + req.params.id);
+    }
+  });
+});
+
+// COMMENT DESTROY ROUTE
+router.delete("/:comment_id", middleware.checkCommentOwnership, function(req, res){
+  Comment.findByIdAndRemove(req.params.comment_id, function(err){
+    if(err){
+      res.redirect("back");
+    } else {
+      res.redirect("/campgrounds/" + req.params.id);
+    }
+  });
+});
+
+module.exports = router;
+```
+
 ## Flash Messages: Installation
+1. Demo working version
+2. Install and configure connect-flash
+3. Add bootstrap alerts to header
+- we are now on V11
+- we want to show a colored banner if you log out, don't have permissions, or make an existing account, successful signup
+- we will need to learn Express 4 for this connect-flash package, it still has Express 3 instructions
+
+- INSTALL CONNECT-FLASH
+- `npm install --save connect-flash;`, `var flash = require("connect-flash");`, `app.use(flash());`
+```js
+// app.js
+var express = require("express");
+var app = express();
+var bodyParser = require("body-parser");
+var mongoose = require("mongoose");
+var flash = require("connect-flash");
+var passport = require("passport");
+var LocalStrategy = require("passport-local");
+var methodOverride = require("method-override");
+var Campground = require("./models/campground");
+var Comment = require("./models/comment");
+var User = require("./models/user");
+var seedDB = require("./seeds");
+
+var commentRoutes = require("./routes/comments");
+var campgroundRoutes = require("./routes/campgrounds");
+var indexRoutes = require("./routes/index");
+
+mongoose.connect("mongodb://localhost/yelp_camp");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
+app.use(methodOverride("_method"));
+app.use(flash());
+// seedDB();
+
+// PASSPORT CONFIGURATION
+app.use(require("express-session")({
+  secret: "Once again Rusty wins cutest dog!",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use(function(req, res, next){
+   res.locals.currentUser = req.user;
+   next();
+});
+
+app.use("/", indexRoutes);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/comments", commentRoutes);
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("The YelpCamp Server has started!!!");
+});
+```
+
+- ADD FLASH MESSAGES
+- you need to add the `req.flash()` before the `res.redirect()` or it will not work
+- adding req.flash() does not automatically adds the popup
+```js
+// middleware/index.js
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
+
+// all the middleare goes here
+var middlewareObj = {};
+
+middlewareObj.checkCampgroundOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Campground.findById(req.params.id, function(err, foundCampground){
+           if(err){
+               req.flash("error", "Campground not found");
+               res.redirect("back");
+           }  else {
+               // does user own the campground?
+            if(foundCampground.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                req.flash("error", "You don't have permission to do that");
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        req.flash("error", "You need to be logged in to do that");
+        res.redirect("back");
+    }
+}
+
+middlewareObj.checkCommentOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Comment.findById(req.params.comment_id, function(err, foundComment){
+           if(err){
+               res.redirect("back");
+           }  else {
+               // does user own the comment?
+            if(foundComment.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                req.flash("error", "You don't have permission to do that");
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        req.flash("error", "You need to be logged in to do that");
+        res.redirect("back");
+    }
+}
+
+middlewareObj.isLoggedIn = function(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    req.flash("error", "You need to be logged in to do that");
+    res.redirect("/login");
+}
+
+module.exports = middlewareObj;
+```
+
+- ADDING MESSAGE TO ROUTES
+- we have to handle it in the show login form in index.js by passing in the message object
+- in the next videos, we won't have to do this way
+```js
+// routes/index.js
+var express = require("express");
+var router  = express.Router();
+var passport = require("passport");
+var User = require("../models/user");
+
+//root route
+router.get("/", function(req, res){
+    res.render("landing");
+});
+
+// show register form
+router.get("/register", function(req, res){
+   res.render("register"); 
+});
+
+//handle sign up logic
+router.post("/register", function(req, res){
+    var newUser = new User({username: req.body.username});
+    User.register(newUser, req.body.password, function(err, user){
+        if(err){
+            req.flash("error", err.message);
+            return res.render("register");
+        }
+        passport.authenticate("local")(req, res, function(){
+           req.flash("success", "Welcome to YelpCamp " + user.username);
+           res.redirect("/campgrounds"); 
+        });
+    });
+});
+
+//show login form
+router.get("/login", function(req, res){
+   res.render("login", {message: req.flash("error")}); 
+});
+
+//handling login logic
+router.post("/login", passport.authenticate("local", 
+    {
+        successRedirect: "/campgrounds",
+        failureRedirect: "/login"
+    }), function(req, res){
+});
+
+// logout route
+router.get("/logout", function(req, res){
+   req.logout();
+   req.flash("success", "Logged you out!");
+   res.redirect("/campgrounds");
+});
+
+module.exports = router;
+```
+
 ## Note about Flash Messages
+Hello Everyone!
+
+The following lectures produce a small bug where you have to click the register button twice to see the flash message. Please see this discussion for the solution.
+
+Also, if you're getting an error along the lines of: "req.flash is not a function", then be sure that the following line: app.use(flash());  comes before your passport configuration in app.js
+
+Cheers,
+Ian
+Course TA
+
 ## Flash Messages: Adding Bootstrap
+- we will move code to the header so it will appear on every page
+- we also will pass the req.flash in app.js where we pass the user object
+- the colored alerts are from bootstrap (components): success, info, warning, and danger classes
+- we will need to put the message inside a bootstrap div class to get the colors
+- so we will have one for error and success
+- we will have an "if" statement to hide the boxes if there are no messages
+
+- ADDING REQ.FLASH IN ROUTE LOGIC
+- every time there is a successful logout, it will show a green colored bar
+```js
+// routes/index.js
+var express = require("express");
+var router  = express.Router();
+var passport = require("passport");
+var User = require("../models/user");
+
+//root route
+router.get("/", function(req, res){
+    res.render("landing");
+});
+
+// show register form
+router.get("/register", function(req, res){
+   res.render("register"); 
+});
+
+//handle sign up logic
+router.post("/register", function(req, res){
+    var newUser = new User({username: req.body.username});
+    User.register(newUser, req.body.password, function(err, user){
+        if(err){
+            req.flash("error", err.message);
+            return res.render("register");
+        }
+        passport.authenticate("local")(req, res, function(){
+           req.flash("success", "Welcome to YelpCamp " + user.username);
+           res.redirect("/campgrounds"); 
+        });
+    });
+});
+
+//show login form
+router.get("/login", function(req, res){
+   res.render("login"); 
+});
+
+//handling login logic
+router.post("/login", passport.authenticate("local", 
+    {
+        successRedirect: "/campgrounds",
+        failureRedirect: "/login"
+    }), function(req, res){
+});
+
+// logout route
+router.get("/logout", function(req, res){
+   req.logout();
+   req.flash("success", "Logged you out!");
+   res.redirect("/campgrounds");
+});
+
+module.exports = router;
+```
+
+```js
+// app.js
+app.use(function(req, res, next){
+   res.locals.currentUser = req.user;
+   res.locals.error = req.flash("error");
+   res.locals.success = req.flash("success");
+   next();
+});
+```
+
+- MAKING COLORED BARS CONDITIONAL
+```js
+// -views/partials/header.ejs
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>YelpCamp</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/stylesheets/main.css">
+    </head>
+    <body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">YelpCamp</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <% if(!currentUser){ %>
+                        <li><a href="/login">Login</a></li>
+                        <li><a href="/register">Sign Up</a></li>
+                    <% } else { %>
+                        <li><a href="#">Signed In As <%= currentUser.username %></a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <% if(error && error.length > 0){ %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+        <% } %>
+        <% if(success && success.length > 0){ %>
+            <div class="alert alert-success" role="alert">
+                <%= success %>
+            </div>
+        <% } %>
+    </div>
+```
+
 ## Flash Messages: Helpful Errors
-## Landing Page Refactor - Part One
-## Landing Page Refactor - Part Two
-## Dynamic Price Feature
-## Note about further UI improvements
+- We will not take care of the other middleware flashes as well
+- You can flash anywhere outside of the middleware index.js if you also choose
+- you just have to make sure that the route is using the middleware
+- we checked campgrounds.js, comments.js, and index.js
 
-# Section 37: Git and Github
-Intro To Git
-WHAT IS GIT?
--it’s a version control system
--it’s a way to work with different versions of our code and make different features and make annotations
+- MIDDLEWARE FLASHES
+- we are adding messages for other middleware routes
+- for all the routes files, you should not need to add additional flashes and only if you want to
+- you can also remove any existing middleware in those route files
+- you might get an [object Object] error, you would just need to console that and spread into it
+```js
+// middleware/index.js
+var Campground = require("../models/campground");
+var Comment = require("../models/comment");
 
-WHY SHOULD YOU CARE?
--it’s great collaborate with different people and for big projects
--it’s not difficult to learn but still takes time
+// all the middleware goes here
+var middlewareObj = {};
 
-WHAT IS GITHUB?
--Git is a technology and Github is a site that works with Git technology
+middlewareObj.checkCampgroundOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Campground.findById(req.params.id, function(err, foundCampground){
+           if(err){
+               req.flash("error", "Campground not found!");
+               res.redirect("back");
+           }  else {
+               // does user own the campground?
+            if(foundCampground.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                req.flash("error", "You don't have permission to do that!");
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        req.flash("error", "You need to be logged in to do that!");
+        res.redirect("back");
+    }
+};
 
-NOVEL WRITING ANALOGY
--not limited to only writing code
--Git will save revisions and go back to certain points
--it let’s you leave messages for yourself
+middlewareObj.checkCommentOwnership = function(req, res, next) {
+ if(req.isAuthenticated()){
+        Comment.findById(req.params.comment_id, function(err, foundComment){
+           if(err){
+               req.flash("error", "Comment not found!");
+               res.redirect("back");
+           }  else {
+               // does user own the comment?
+            if(foundComment.author.id.equals(req.user._id)) {
+                next();
+            } else {
+                req.flash("error", "You don't have permission to do that!");
+                res.redirect("back");
+            }
+           }
+        });
+    } else {
+        req.flash("error", "You need to be logged in to do that!");
+        res.redirect("back");
+    }
+};
 
-INSTALLING GIT
--using cloud 9, it’s automatic
--if NOT cloud 9, you will have to install Git
-Git Init, Add, and Commit
--Have 1 repository per project
+middlewareObj.isLoggedIn = function(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    req.flash("error", "You need to be logged in to do that!");
+    res.redirect("/login");
+};
 
-Git init
-Git status
-Git add
-Git commit
-Git Log and Checkout
-Git Log
-Git Checkout
-Note about GitHub Lecture
+module.exports = middlewareObj;
+```
+
+## Note about error handling
 Hi Everyone!
- 
-This section has yet to be completed, but if you want to continue learning Git and GitHub then send me (Ian, not Colt) a direct message and I'll be happy to share a free coupon to my Git course with you. In my course you will learn how to connect, and push (upload), your code to GitHub.
-If you're not keen on watching the videos in my course then have a look at this discussion for a written tutorial.
-Meanwhile, if you have any questions about Git or GitHub, feel free to ask in the Q&A section and I'll be sure to respond as quickly as possible.
-Also as a side note, now that you're almost done with the course (only 2 sections left!) you may be wondering what to do next. I have a couple of courses, one being the Git course mentioned above, the other being a course on using AJAX with jQuery to build a Single Page Application with Express. If you're interested in learning about jQuery's AJAX and how it works with Express then send me a direct message on Udemy and I'll be happy to share a discounted coupon with you.
+
+It's been brought to my attention that there's a small issue with our app in production. The show and edit routes aren't handling errors properly so the application can crash under certain circumstances.
+
+
+You can [checkout this thread](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/2758358) for a general discussion regarding the error.
+
+Please see [here](https://youtu.be/eDWPJAzlBfM) for the full solution.
+
 Thanks,
 Ian
 Course TA
-link: https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/1390444 
+
+## Landing Page Refactor - Part One
+- Working with Ian now
+- He calls his directory background slider but same thing as Colt's V10 of app
+
+- WORKING ON LANDING PAGE
+- we copied the html from his [github repo](https://github.com/nax3t/background-slider)
+- modernizer checks browser versions and adjust css code
+- we are using li as an anchor for our background images
+- [Nodemon](https://github.com/remy/nodemon) listens for file changes and restarts server
+- install with `npm install -g nodemon`, you can run `nodemon` in project root directory or tell it specifically the file with `nodemon app.js` 
+```js
+// views/landing.ejs
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>YelpCamp</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/stylesheets/landing.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript" async></script>
+    </head>
+    <body>
+    
+    <div class="container">
+        <% if(error && error.length > 0){ %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+        <% } %>
+        <% if(success && success.length > 0){ %>
+            <div class="alert alert-success" role="alert">
+                <%= success %>
+            </div>
+        <% } %>
+    </div>
+    
+    <div id="landing-header">
+ 		<h1>Welcome to YelpCamp!</h1>
+		<a href="/campgrounds" class="btn btn-lg btn-success">View All Campgrounds</a>
+    </div>
+    
+    <ul class="slideshow">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+
+<% include partials/footer %>
+```
+
+## Landing Page Refactor - Part Two
+- LANDING PAGE CSS
+- z-index is forwards and backwards, 1 means it comes forward to us, we have to change postion to something else other than default(static)
+- padding-top set at 40vh will make it look centered
+```js
+//public/stylesheets/landing.css
+body {
+    background-color: #000;
+}
+
+#landing-header {
+  z-index: 1;
+  position: relative;
+  text-align: center;
+  padding-top: 40vh;
+}
+
+#landing-header h1 {
+    color: #fff;
+}
+
+.slideshow { 
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.slideshow li { 
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  opacity: 0;
+  z-index: 0;
+  animation: imageAnimation 50s linear infinite; 
+}
+
+.slideshow li:nth-child(1) { 
+  background-image: url(http://i.imgur.com/K3mPv14.jpg) 
+}
+.slideshow li:nth-child(2) { 
+  background-image: url(http://i.imgur.com/SBEmFpv.jpg);
+  animation-delay: 10s; 
+}
+.slideshow li:nth-child(3) { 
+  background-image: url(http://i.imgur.com/emvhOnb.jpg);
+  animation-delay: 20s; 
+}
+.slideshow li:nth-child(4) { 
+  background-image: url(http://i.imgur.com/2LSMCmJ.jpg);
+  animation-delay: 30s; 
+}
+.slideshow li:nth-child(5) { 
+  background-image: url(http://i.imgur.com/TVGe0Ef.jpg);
+  animation-delay: 40s; 
+}
+
+@keyframes imageAnimation { 
+  0% { 
+    opacity: 0; 
+    animation-timing-function: ease-in;
+  }
+  10% {
+    opacity: 1;
+    animation-timing-function: ease-out;
+  }
+  20% {
+    opacity: 1
+  }
+  30% {
+    opacity: 0
+  }
+}
+
+/* Older browser support - .no-cssanimations class added by modernizr */
+.no-cssanimations .slideshow li {
+	opacity: 1;
+}
+```
+
+## Dynamic Price Feature
+- Ian cloned V11 of YelpCamp
+- added price to campground/edit/ejs schema
+
+- ADDING PRICE TO FORM VIEW
+- in views/campgrounds/new.ejs, added a new form
+```js
+<div class="form-group">
+  <input class="form-control" type="number" name="price" placeholder="price" min="0.01" step="0.01">
+</div>
+```
+
+- in views/campgrounds/edit.ejs, added a new form
+```js
+<div class="form-group">
+  <input class="form-control" type="number" name="campground[price]" value="<%= campground.price %>" min="0.01" step="0.01">
+</div>
+```
+- min is 1 penny, step is the increment amount per click
+
+- ADD PRICE TO CAMPGROUND SHOW
+- in views/campgrounds/show.ejs, added show
+```js
+<h4 class="float-right">$<%= campground.price %>/night</h4>
+```
+- also need to add the variable in routes/campgrounds.js
+```js
+var price = req.body.price
+
+var newCampground = {name: name, price: price, image: image, description: desc, author: author};
+```
+
+## Note about further UI improvements
+Last updated 03/31/18
+
+Hi Everyone!
+
+I've been working on some additional features for the YelpCamp project. You can view the source code here. So far I've included the following features: 
+
+CSS3 background animation on landing page 
+Fuzzy Search 
+Campground location with Google Maps
+Campground cost 
+Footer 
+Home link in navigation 
+Authentication flash messages 
+Display time since post was created with Moment JS 
+User profile 
+Password reset 
+Image upload with multer and cloudinary 
+Migration/upgrade instructions for Bootstrap 4
+*See below for all tutorial links as well as additional tutorials provided by Zarko and Darrell
+
+- UI Improvements (login and signup, nav-bar, registration flash message) - http://slides.com/nax3t/yelpcamp-refactor-ui
+
+- Pricing feature - http://slides.com/nax3t/yelpcamp-refactor-pricing
+
+UPDATED!!! - Google Maps location - https://www.youtube.com/watch?v=B4OuCjQLJ9k
+
+- Time since created w/ Moment JS - http://slides.com/nax3t/yelpcamp-refactor-moment
+
+- Admin role (user roles) - https://www.youtube.com/watch?v=somc45pnM2k
+
+- User profile - https://youtu.be/6ar77jZ_ajc
+
+- Password reset - https://youtu.be/UV9FvlTySGg
+
+- Fuzzy Search - https://youtu.be/9_lKMTXVk64
+
+- Image upload - https://youtu.be/RHd4rP9U9SA
+
+NEW!!! - Migrating to Bootstrap 4 - https://www.youtube.com/watch?v=NHHh0sj1uKY
+
+Tutorials by Zarko:
+--------------------------
+
+- Comments on the show page - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190558
+
+- Pagination on campgrounds index - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190496
+
+Tutorials by Darrell: 
+---------------------------
+
+- Contact page with reCaptcha - https://blog.djpawson.me/2018/02/05/yelpcamp-contact-page-with-recaptcha/
+
+- NEW!!! Signup with reCaptcha - https://blog.djpawson.me/2018/02/28/recaptcha-login/
+
+Additional Student Resources: 
+-------------------------------------------
+
+- Useful links from the course - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3839394
+
+- More useful links - https://docs.google.com/spreadsheets/d/1UHbhgZrpY7UwPbJqMlQjCLrxmReLhWH_bZeQIosYa4w/edit#gid=0
+
+Have a YelpCamp tutorial that you'd like featured? Please contact me in a direct message with a link to the tutorial.
+
+-------
+Thanks,
+Ian
+
+# Section 37: Git and Github
+## Intro To Git
+### Introduction
+1. WHAT IS GIT?
+-it’s a version control system
+-it’s a way to work with different versions of our code and make different features and make annotations
+- [HOMEPAGE](https://git-scm.com/)
+
+2. WHAT IS GITHUB?
+- A way to keep your code public to collaborate with others
+
+3. WHY SHOULD YOU CARE?
+- it’s great collaborate with different people and for big projects
+- it’s not difficult to learn but still takes time
+
+4. WHAT IS GITHUB?
+- Git is a technology and Github is a site that works with Git technology
+
+5. NOVEL WRITING ANALOGY
+- not limited to only writing code
+- Git will save revisions and go back to certain points
+- it let’s you leave messages for yourself
+- you can put forks in the road and be able to simultaneously work on multiple forks
+
+6. INSTALLING GIT
+- using cloud 9, it’s automatic
+- if NOT cloud 9, you will have to install Git
+
+## Git Init, Add, and Commit
+### Git Basics
+- can run `git --version` to see if you have git installed
+- General rule: have 1 repository per project
+
+1. Git init
+- tells computer to track that directory for versioning
+- on initial commits, there will be untracked files that you can commit
+- just by initializing a repository, it won't auto track all the files
+- since you can have files with sensitive information that you don't want to track and upload
+- you have to add and commit them
+
+2. Git status
+- Ask status of that git repository
+
+3. Git add
+- Use `git add .` to add all the files
+
+4. Git commit
+- Use `git commit -m` to add a message for the commit
+- Use `git commit -am` to add all the changed files and add a message
+
+## Git Log and Checkout
+### Git Checkout
+1. Git Log
+- Shows you a log of all the commits with hash as IDs
+- You can use the hash for reference
+
+2. Git Checkout
+- You can use hash of the commits the check out that snapshot the app at that time
+- You have to make all commits before checkout another branch
+- When you check out another hash, the HEAD is basically the pointer of where you are on the timeline
+- MASTER is where the current point in time is
+- so `HEAD detached at ...` is not a real problem, it's just letting you know you are not at the top of the timeline
+- It's like time traveling
+
+- REVERTING BACK TO A PREVIOUS HASH
+- Most devs know how to use 5-7 git commands, if they need to do something advance then they would look it up
+- Easiest to use `git revert --no-commit <hash>..HEAD`, then `git commit`
+- Quickest to use `git reset --hard <hash>`
+
+# Note about Git Lecture
+Hi Everyone!
+
+This section has yet to be completed, but if you want to continue learning Git and GitHub then checkout [this free video series](https://www.youtube.com/watch?v=LemSseuZB9I&list=PL86ehqHzxhy4XX_qZZE_5mrp38WGZRzTO) on YouTube that I made.
+
+You can also checkout [this discussion](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/1390444) for a written tutorial.
+
+Meanwhile, if you have any questions about Git or GitHub, feel free to ask in the Q&A section and I'll be sure to respond as quickly as possible.
+
+Also, now that you're almost done with the course (only 2 sections left!) you may be wondering what to do next. I have a (free for a limited time) course on using AJAX with jQuery to build a Single Page Application with Express. You can find it here.
+
+Thanks,
+Ian
+Course TA
 
 # Section 38 Deploying
-Intro to Deploying and Heroku
-Deploying a Simple App Part 1
-Deploying a Simple App Part 2
-Deploying YelpCamp: Basics
-Note about MongoLab
-Deploying YelpCamp: MongoLab
-Environment Variables
+## Intro to Deploying and Heroku
+## Deploying a Simple App Part 1
+## Deploying a Simple App Part 2
+## Deploying YelpCamp: Basics
+## Note about MongoLab
+## Deploying YelpCamp: MongoLab
+## Environment Variables
 
 # Section 39 JavaScript: The Tricky Stuff
 Keyword This 1 - Introduction and Global
