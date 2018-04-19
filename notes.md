@@ -1,6 +1,6 @@
 # KEY Colt Steele: The Web Developer Bootcamp
 ## https://www.udemy.com/the-web-developer-bootcamp/learn/v4/content 
-##Started: 12/12/2016 Ended 
+## Started: 12/12/2016 Ended 4/8/2018
 
 # Section 1: Introduction To This Course 
 ## A Note On Asking For Help
@@ -54,6 +54,21 @@
 - Setting Up Front-End Development Environment
 - Chrome tools: 
 - Sublime Text: free trial that goes on forever, open platform
+
+## Note about Setting Up Front-End Developer Environment
+Hello Everyone!
+
+In the following lecture you will learn how to setup your front-end environment.
+
+Here's a couple tips that will help you as you're getting set up.
+
+You can use [Sublime Text 3](https://www.sublimetext.com/3) instead of 2. This will make it to where the HTML5 `<!DOCTYPE html>`  is included in your HTML boilerplate snippet.
+
+Also, when you're using the html + tab tab completion shortcut, be sure that the file's syntax is set to HTML. It should say "HTML" in the lower right corner of the window. If it says "Plain Text" then you'll need to click it and change it to "HTML" before the tab completions for HTML tags will work properly.
+
+--------
+Cheers,
+Ian Learn more
 
 ## Note about introduction to the Web
 Hi Everyone!
@@ -140,7 +155,17 @@ Learn more
 `<b></b>`
 `<p></p>`
 
-##Introduction to MDN
+## Note about introduction to MDN
+Hi Everyone!
+
+The link in the next video, "Introduction to MDN" for MDN's Introduction to HTML can now be found [here](https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML).
+
+The MDN page has been updated since the making of this course so it won't appear exactly like what Colt has in the video. If you want to view the original version from when Colt recorded the video then see here for an archived version of the webpage before it was updated.
+
+cheers,
+Ian
+
+## Introduction to MDN
 - [Mozilla Developer Network HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
 
 - Mozilla Developer Network is important for developers
@@ -480,6 +505,16 @@ SYNTAX <link rel=”stylesheet” type=”text/css” href=”app.css”>
 - put the `<link>` tag in head, define the href=””
 - put in “app.css” and save
 
+## Note about CSS Colors (next lecture)
+Hi Everyone,
+
+The following lecture, "CSS Colors" has a segment where the colors flash across the screen rather quickly.
+
+If you're prone to photosensitive epilepsy (PSE) then please avoid watching the screen from the 1 minute and 7 second mark until the 1 minute and 54 second mark in the video.
+
+thanks,
+Ian
+
 ## CSS Colors
 - 04
 - [Slides](http://webdev.slides.com/coltsteele/deck-7-10-11-54#/)
@@ -524,6 +559,29 @@ Make sure small seamless repeatable picture or a high resolution picture
 “Border-style: (solid, dashed, dotted);”
 
 - Equivalent syntax: “border: 5px solid purple;”
+
+## Note about Selectors Basics Todo List
+Hello Everyone,
+
+In the next video there is a slight discrepancy. Around the 4 minute and 19 second mark the slides will show:
+```html
+<p>You say goodbye</p>
+<p id="special">I say hello </p>
+```
+
+with CSS of:
+```css
+#special {
+  color: yellow;
+}
+```
+so the I say hello paragraph's text color should be yellow, but in the example, to the right of the code, the two were accidentally switched while creating the slides and You say goodbye is yellow, instead.
+
+Sorry for any confusion!
+
+-------
+Thanks,
+Ian Learn more
 
 ## CSS Selectors
 - 06 Todo List
@@ -742,6 +800,15 @@ SYNTAX font-family: indie flower;
 - table margin: auto;
 - text-align: center;
 
+## Note about Image Gallery Code Along Pt. 1
+Hi Everyone!
+
+Just so you don't get confused, around the 8 minute mark in the next video, Colt goes over the image sizing calculation. He mistakenly says "..each one of these [images] is 10%..", when he should have said "each one of these is 30%, making 90% total, plus 1.66% times 6 for the margins, which equals 99.96%" (nearly 100%).
+
+Cheers,
+Ian
+Course TA
+
 ## Image Gallery Code Along Pt 1.
 - 07 Image Blog 1
 
@@ -818,6 +885,21 @@ Course TA
 
 - CSS portion has buttons, forms
 - Components has nav bars
+
+## Note about Bootstrap versions
+Hi Everyone!
+
+Bootstrap now has a new version (4). We are working on new content for this, but in the meantime please use the [original documentation](https://getbootstrap.com/docs/3.3/) for version 3 and ensure that you're using version 3.3.7 in your code as you're following along with the lectures.
+
+If you'd like to teach yourself bootstrap 4 (which should be very easy after finishing this section of the course) then checkout [this migration guide](https://getbootstrap.com/docs/4.0/migration/).
+
+You can also use [this guide](https://www.youtube.com/watch?v=NHHh0sj1uKY) to upgrade your YelpCamp project (covered later in the course) from bootstrap 3 to version 4.
+
+I personally recommend learning both versions as a lot of companies will still be using version 3 in their code and will need developers who know both versions to help them migrate.
+
+Thanks,
+Ian
+Course TA
 
 ## Adding Bootstrap to a Project
 - 02 Installing Bootstrap
@@ -1082,7 +1164,7 @@ Course TA
 [Slides](http://webdev.slides.com/coltsteele/javascript-basics-57#/)
 - 100 % 3
 
-###Variables
+### Variables
 [Slides](http://webdev.slides.com/coltsteele/javascript-basics-57#/)
 - variable is a container that has strings in it
 - SYNTAX var yourVariableName = yourValue;
@@ -1154,7 +1236,7 @@ console.log(“Also great to meet you, “ + userName);
 3. Write JS while loops and for loops
 4. Translate between while and for loops
 
-##Boolean Logic
+## Boolean Logic
 - Slides
 
 - has only true or false used in statements 
@@ -1168,7 +1250,17 @@ console.log(“Also great to meet you, “ + userName);
 - Null == undefined //true
 - NaN == NaN //false
 
-##Logical Operators
+## Note about logical operators lecture
+Hi Everyone!
+
+In the next lecture Colt has a couple of examples that use an empty string, or two quotes with nothing between them: "". However, the slides make it look like there might be a space between the quotes (which would not be an empty string). You'll see why this distinction is important as you view the video, but for now just remember that if you see two quotes: "", that it is in fact an empty string.
+
+-------
+Thanks,
+Ian 
+[Learn more](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
+
+## Logical Operators
 - Slides
 - ways to chain together operators
 - `&&` AND = has left and right side, requires both sides to be true
@@ -1507,7 +1599,8 @@ SLICE
 -it does not alter the original array
 -1st number is inclusive and 2nd number is not inclusive
 -in this example, it slices only 2 strings ie var citrus = fruits.slice(1, 3);
-Array Quiz
+
+## Array Quiz
 EXERCISE 1
 -greatest index is 4, numbers length is 5
 -answer is undefined
@@ -1515,7 +1608,41 @@ EXERCISE 1
 EXERCISE 2
 -this has nested arrays
 -answer is Mooney
-Todo List Code Along Part 1
+
+## Note about Todo List Code Along
+Hi All,
+
+In the following lecture you will be using the prompt function in your JavaScript to display messages and accept input from the user.
+
+Chrome browser behaves a little strangely when using alert, prompt, or confirm functions. It doesn't display the HTML on the page until after the popup has been closed. This is problematic since our HTML contains instructions for the user to be able to use the app we're building.
+
+You can avoid this by wrapping your JS code in the following setTimeout function:
+```js
+window.setTimeout(function() {
+  // put all of your JS code from the lecture here
+}, 500);
+```
+This gives the HTML a half second to load before running the JS, which circumvents the issue of the prompt function blocking the HTML from loading right away.
+
+This is not something you would have to deal with in the real world as prompt, alert, and confirm functions are almost never used and when they are it's typically not on page load.
+
+You'll also learn jQuery in latter sections which has a cool $`('document').ready()` function that you could use in place of the window.setTimeout workaround mentioned above.
+
+Note, if you want to be able to access the todos variable from the chrome developer console then you'll need to put it in the global scope, see example below:
+```js
+var todos = ["Buy New Turtle"];
+window.setTimeout(function() {
+  // put all the rest of your JS code from the lecture here
+}, 500);
+```
+If you include the todos array inside of the window.setTimeout() function then it's scope will be local to the anonymous function (callback) and you won't be able to access it from the chrome console.
+
+-------
+Thanks,
+Ian 
+[Learn more](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
+
+## Todo List Code Along Part 1
 -to do list based on alerts and prompts
 Array Iteration Slides
 OBJECTIVES
@@ -1562,7 +1689,42 @@ var numbers = [1,2,3,4,5,6,7,8,9,10];
     };
 }
 
-Todo List Code Along Part 2 Todo List App
+## Note about Todo List Code Along Part 2
+Hello Everyone,
+
+Colt will be using the Array.forEach function in the next video. This note to provides further information about .forEach and how it works.
+
+.forEach takes a callback function, that callback function is expected to have at least 1, but up to 3, arguments. This is how [.forEach was designed](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach).
+
+The arguments are in a specific order:
+- The first one represents each element in the array (per loop iteration) that .forEach was called on.
+- The second represents the index of said element.
+- The third represents the array that .forEach was called on (it will be the same for every iteration of the loop).
+
+You have a couple options when calling .forEach on an array:
+
+You can pass in an anonymous function:
+```js
+[1,2,3].forEach(function(el, i, arr) {
+  console.log(el, i, arr);
+});
+```
+Or you can pass in a pre-written, named function.
+```js
+function logNums(el, i, arr) {
+  console.log(el, i, arr);
+}
+ 
+[1,2,3].forEach(logNums);
+```
+Notice how in the second example we don't invoke logNums when passing it into .forEach? We simply pass in the function name. We don't need to invoke the logNums function, .forEach does that for us. In fact, it invokes the function multiple times, once for every element inside of the array.
+
+I hope that helped clear some things up, please post a question in the Q&A if you're unsure of anything that I've shared above.
+
+cheers,
+Ian
+
+## Todo List Code Along Part 2 Todo List App
 -CS basically added a delete function and console logs to show actions
 -he also refactored his code
 Array Problem Set
@@ -2047,10 +2209,25 @@ REASONS NOT TO USE
 -it’s an unnecessary dependency
 -performance
 -lot’s of people are moving away from jQuery!
-Including jQuery Linking To Query Code
+
+## Including jQuery
 -two ways: locally or CDN
 -better if you put in a separate folder called lib
-Selecting with jQuery
+
+## Note about jQuery
+Hi Everyone!
+
+In the next few lectures, as you're learning about jQuery, Colt's output in the console will look a little bit different than yours. From what I can tell this is due to updates in the chrome browser.
+
+Your output will look different because chrome is showing you the jQuery object, not the element that you selected. In order to view the element you must access it via `$('div')[0];`
+
+You can read more about this [here](https://stackoverflow.com/questions/13552432/show-elements-when-logging-jquery-object-in-chrome-dev-tools-console/13567689#13567689), including how to iterate over a collection of elements and log them to the console.
+
+Additionally, please be sure to use the .min version of jQuery in your projects, not the .slim version as it doesn't include all of jQuery's features which are necessary for upcoming exercises/lectures.
+
+Thanks,
+Ian
+## Selecting with jQuery
 OBJECTIVES
 -select elements with $()
 -use .css() to style elements
@@ -2145,7 +2322,19 @@ fadeToggle(x)
 .slideToggle()
 
 # Section 18 Todo List Projects
-Intro to the Todo List App Todo-List-Project.zip
+## Note about Todo List App Fade and Slide Animations
+Hello Everyone,
+
+In the next video Colt will introduce the project for this section along with the technologies you'll be using to build the app with. In the video he mentions Fades and Slides with jQuery. You will be making use of jQuery's fadeOut and fadeToggle methods, but the slide animation (for the trashcan icon) will be done with CSS, not jQuery. 
+
+If you're unsure of how to do this with CSS and are unable to find instructions on the internet then please skip that part of the project until after you've watched how Colt does it in the lectures.
+
+It should also be noted that the .fadeOut() method will not work with the .slim version of jQuery. The regular .min version should be used instead.
+
+Thanks,
+Ian
+
+## Intro to the Todo List App Todo-List-Project.zip
 -jQuery: .on(), .keypress(), fades and slides, selecting
 New features: .parent(), .append(), creating elements, event delegation
 -CSS: margin, padding, float, fonts
@@ -2232,7 +2421,8 @@ This is click() vs on(“click”)
 Change to $(“ul”).on(“click”, “li”, function (){});
 Change to $(“ul”).on(“click”, “span”, function(){});
 -you have to change the listener to the UL because it has to have existing 
-Todo List: Styling Pt. 1 Todo-List-Project.zip
+
+## Todo List: Styling Pt. 1 Todo-List-Project.zip
 -push down to do list
 Ie margin: 100px auto;
 -add background color to container
@@ -2279,7 +2469,8 @@ Ie color: #2980b9;
 Ie input:focus{background: #fff; border: 3px solid #2980b9; outline: none;}
 -add placeholder text
 Ie placeholder= “Add New Todo”
-Todo List: Styling Pt. 2 Todo-List-Project.zip
+
+## Todo List: Styling Pt. 2 Todo-List-Project.zip
 -change the background on the body
 -he grabbed CSS code from UI Gradients, he used Bora Bora
 
@@ -2294,7 +2485,22 @@ In css, li:hover span {width: 40px; opacity: 1.0;}
 
 -fixing the game of the button by adding a border
 On css, input {border: 3px solid rgba(0,0,0,0);}
-Todo List: Toggling The Form Todo-List-Project.zip
+
+## Note about Font Awesome 5 and Toggling the Form
+Hi All,
+
+In the next lecture you'll be learning how to toggle the form for your todo list. If you're using the latest version of Font Awesome (5 or greater) for the plus icon, then you'll have trouble getting the code in that video to work correctly.
+
+Font Awesome 5 converts the `<i>` element into an SVG. To work around this we have to wrap the `<i>` element in a span and select the span in our JS with an id. This also means we have to style the todo list trash can spans with `li span` in our CSS, instead of just using `span`, which would mess up our toggle button.
+
+I've attached the updated solution for Font Awesome 5 (along with the original solution) in the next lecture's resources.
+
+-------
+Thanks,
+Ian 
+[Learn more](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
+
+## Todo List: Toggling The Form Todo-List-Project.zip
 -using jQuery to making the plus icon work
 On JS file, $(“.fa-plus”.click(function(){$(“input[type=’text’”].fadeOut();});
 -use .fadeToggle() instead
@@ -2580,8 +2786,8 @@ Command Line Exercise
 
 ### Why are we learning it?
 - It’s popular! (Least important reason)
-	- It's popular among existing developers
-	- You can see the key terms about Node on [stackshare](stackshare.io)
+- It's popular among existing developers
+- You can see the key terms about Node on [stackshare](stackshare.io)
 - PHP has been around for a long time (Large community, best glue on the web, good old web)
 - Node has Great libraries, JavaScript, High-Performance
 - JavaScript (Most important reason), we already know this language!
@@ -2768,6 +2974,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
     console.log("Server started!!!");
 });
 ```
+
 - When we start a server, it goes into listening mode so we can't type commands
 - Use `Ctrl + C` to quit the listening server
 - C9 hosts it on their servers so you can get the web address when you go to preview IE `webdevbootcamp-learnwithcolt.c9.io`
@@ -2805,7 +3012,7 @@ app.get(“/dog”, function(req, res) {
 
 ### Explain what the package.json file does
 - visited nodejitsu site to explain
-- every package has Package.json 
+- every package has package.json 
 - it’s a file that has all the metadata, desc, author, contributors, repository that’s relevant to the project
 - dependencies are most important aspect which has name and version numbers of each
 - notice that node module is not included on github repository
@@ -3270,7 +3477,7 @@ app.post("/addfriend", function(req, res) {
 - You have to read the docs to learn about how to use each API
 - If you make an HTTP request to an API, you get data back
 
-- DATA formates
+- DATA FORMATS
 - API's don't respond with HTML
 - HTML returns information about the structure of the page
 - API's respond with data, not structure
@@ -3306,7 +3513,7 @@ app.post("/addfriend", function(req, res) {
 - Most new things have JSON being used, rare to find XML usage
 
 - YAHOO WEATHER API
-- lets you view JSON and XML responsea and see endpoints
+- lets you view JSON and XML responses and see endpoints
 
 - JSONVIEW
 - a chrome extension that lets you easily view JSON data
@@ -4191,7 +4398,7 @@ Additionally, after you're up and running with mongo, be sure to shut down your 
 If you leave it running then Cloud 9 could timeout and cause mongo to crash. If this happens, try the following steps to repair it. 
 
 From the command line, run:
-
+```
 cd ~
 ./mongod --repair
 If you're still having trouble getting it to run then find the /data directory (it should be inside of ~) and cd into it. Once inside, run rm mongod.lock then cd back into ~ and run ./mongod again (see below).
@@ -4200,9 +4407,10 @@ cd ~/data
 rm mongod.lock
 cd
 ./mongod
+```
 If you continue to have difficulties with this then please open up a new discussion so we can assist you.
 
-As a side note: In the [Mongo Shell Basics](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/t/lecture/3861646?start=245) video you'll see Colt use the show collections command which will show something called system.indexes . This will no longer show up in the latest versions of MongoDB. You can read more about this [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3006944).
+As a side note: In the [Mongo Shell Basics](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/t/lecture/3861646?start=245) video you'll see Colt use the show collections command which will show something called system.indexes. This will no longer show up in the latest versions of MongoDB. You can read more about this [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3006944).
 
 
 -------
@@ -4228,24 +4436,20 @@ Ian
 ## Mongo Shell Basics
 ### Our First Mongo Commands
 - CRUD - create, read, update, delete
-1. mongod
-- to start the mongo server
+1. To start the mongo server, use `mongod`
 
-2. mongo
-- opens up the shell to debug
+2. Opens up the shell to debug, use `mongo`
 
-3. help
-- gives us basic list of commands
+3. Gives us basic list of commands, use `help`
 
-4. show dbs
-- shows all the databases
+4. Shows all the databases, use`show dbs`
 - admin and local are 2 default databases
 
-5. use
+5. Access existing database/create new, use `use`
 - we don't have to declare before, it will create if non-existant database
 - else will use an exisiting database
 
-6. insert 
+6. Make new entry in specific collection, use `insert` 
 - we don't have to declare before, it will create if non-existant
 - else will use an exisiting database
 - db refers to db demo
@@ -4254,7 +4458,7 @@ Ian
 `db.dogs.insert({name: "Rusty", breed: "Mutt"});`
 - we can show the collections by running `show collections`
 
-7. find
+7. Show all the entries in a collection, use`find`
 - NO ARGUMENT
 - we can use `db.dogs.find()` to show all the dogs
 - it has _id, name, and breed
@@ -4265,14 +4469,14 @@ Ian
 - use `db.dogs.find({name: "Rusty"})
 - pass in an argument to find the specific item
 
-8. update
+8. To change existing information, use `update`
 - use `db.dogs.update({name: "Lulu", breed: "Labradoodle"}) or db.dogs.update({breed: "Poodle", breed: "Labradoodle"})
 - to prevent rewriting of the whole object, use `db.dogs.update({name: "Rusty"}, {$set: {name: "Tater", isCute: true}})
 - using `$set` will preserve what's in the object
 
-9. remove
+9. To delete existing information, use `remove`
 - use `db.dogs.remove({name: "Lulu"})` or `db.dogs.remove({breed: "Labradoodle"})
-- `remove` will remove all instances unless specified with `db.dogs.remove({breed: "Mutt"}).limit(1, 2, etc.)
+- `remove` will remove all instances unless specified with `db.dogs.remove({breed: "Mutt"}).limit(1, 2, etc.)`
 
 ## Note about mongoose promise library
 Hi Everyone,
@@ -4297,7 +4501,7 @@ Ian
 ## Introduction to Mongoose Pt. 1
 - Objectives:
 1. What is Mongoose?
-- an ODM (Oject Document Mapper) is a way to write javascript that will interact with mongodb
+- an ODM (Object Document Mapper) is a way to write javascript that will interact with mongodb
 - an elegant mongodb object modeling for node.js
 - a package from npm which we use to interact with mongodb database
 
@@ -4326,7 +4530,7 @@ var Cat = mongoose.model("Cat", catSchema);
 
 ## Introduction to Mongoose Pt. 2
 - SAVING TO A DATABASE
-- running .save() saves it to the database
+- running `.save()` saves it to the database
 - optional callback to display results from that save process
 ```js
 var mongoose = require("mongoose");
@@ -4390,7 +4594,6 @@ george.save(function(err, cat){
 ```
 
 - RETRIEVING ALL CATS FROM DB AND CONSOLE EACH
-- 
 ```js
 Cat.find({}, function(err, cats){
   if(err){
@@ -4802,6 +5005,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 ```
 
 - ADDING LINK TO CAMPGROUNDS PAGE FOR EACH CAMPGROUND
+- we grab the _id of the campground and use it in the href link
 - we renamed the `campgrounds.ejs` to `index.ejs` to fit RESTful convention
 - don't forget to change the app.get for /campgrounds to res.render("index")
 ```js
@@ -4831,7 +5035,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
                 <h4 class="card-text"><%= campground.name %></h4>
                </div>
                <p>
-                <a href="/campgrounds/<%= campground._id %>" class="btn btn-primary">More Info</a>
+                <a href="/campgrounds/<%= campground._id %>"><button class="btn btn-primary">More Info</button></a>
                </p>
              </div>
           </div>
@@ -4930,6 +5134,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 ```
 
 - ADD DESCRIPTION FIELD TO NEW.EJS
+- allows us to add a description about the campground
 ```js
 <% include partials/header %>
   <div class="container">
@@ -11519,7 +11724,7 @@ mongoose.connect(url);
 ```
 
 # Section 39 JavaScript: The Tricky Stuff
-Keyword This 1 - Introduction and Global
+## Keyword This 1 - Introduction and Global
 Elie teaches intermediate JavaScript
 We are learning the keyword “this”
 
@@ -11547,7 +11752,8 @@ function whatIsThis(){
 Example when you attach a variable to the window object
 var person = "Tim"; // attached to the window object 
 window.person === person // True
-Keyword This 2 - Global With Strict
+
+## Keyword This 2 - Global With Strict
 RULE 1 - Global with use strict
 We learned that if the keyword “this” is not inside of a declared object, its value is the global object
 When we are in the browser, the “this” value is the window, or the global object
@@ -11586,7 +11792,8 @@ badIdea; // "oops"
 When we enable strict mode, “this” inside of a declared object becomes undefined and stops it from becoming the global object of window
 So if you have this active, you will get a TypeError when trying to create a this.property inside a function since you can’t attach a property on an undefined object
 You can ACTIVATE by adding “use strict” since ES5
-Keyword This 3 - Implicit
+
+## Keyword This 3 - Implicit
 RULE 2 - Implicit/Object
 When the keyword ‘this’ is inside of a declared object, “this” will refer to the closest parent object
 // Strict mode does NOT make a difference here
@@ -11629,7 +11836,8 @@ However, there is not key called firstName for dog, therefore it is undefined
 // But what is the value of the keyword this right now?
 person.dog.sayHello() // "Hello undefined"
 person.dog.determineContext() // false
-Keyword This 4 - Call Apply Bind
+
+## Keyword This 4 - Call Apply Bind
 RULE 3 Explicit Binding
 Choose what we want the context of ‘this’ to be using call, apply or bind
 Call, apply, and bind can be only used with functions
@@ -11650,7 +11858,8 @@ RECAP
 Call and Bind can take an infinite number of arguments; with Apply, it can take only 2
 Call and Apply are invoked immediately, where bind remains stored
 Explicit Binding (Rule 3) has precedence over the first 2 rules: implicit and global object
-Keyword This 5 - Fixing Our Issue With Call
+
+##Keyword This 5 - Fixing Our Issue With Call
 Now we want to fix the example of nested objects in the previous lesson
 We were unable to call this.firstName because the dog object does not have a key of Firstname
 var person = {
@@ -11720,7 +11929,8 @@ colt.sayHi() // "Hi Colt"
 colt.sayHi.call(elie) // "Hi Elie"
 
 // much better!
-Keyword This 6 - Apply
+
+## Keyword This 6 - Apply
 Almost identical to call - except the parameters
 In the previous sayHi() example, it didn’t matter if we used call or apply
 It only matters when we start adding more arguments
@@ -11746,7 +11956,8 @@ colt.addNumbers.call(elie,1,2,3,4) // Elie just calculated 10
 colt.addNumbers.apply(elie,[1,2,3,4]) // Elie just calculated 10
 So you can see that you can use call or apply in this situation
 It will be more important later in more advanced scenarios
-Keyword This 7 - Bind
+
+##Keyword This 7 - Bind
 REVIEW
 Call’s work with values separated by commas
 Apply’s work with values passed in with a thisArg and an array separated by commas
@@ -11787,7 +11998,8 @@ setTimeout(function() {
 	console.log("hello world")
 }, 20000)
 //this will display hello world after 20 seconds, leaving you to do other things in the meantime
-Keyword This 8 - Bind Pt. 2
+
+## Keyword This 8 - Bind Pt. 2
 In this example, you would think “this” refers to the colt object which is correct
 However, because we are using setTimeout to call the function later in time, “this” will actually be attached to the global object, window
 This is why you will get undefined
@@ -11815,7 +12027,8 @@ var colt =  {
 	}
 }
 colt.sayHi() // Hi Colt (1000ms later)
-Keyword This 9 - New Keyword & Recap
+
+## Keyword This 9 - New Keyword & Recap
 RULE 4 The ‘new’ keyword
 We can set the context of the keyword ‘this’ using the ‘new’ keyword - it does quite a bit more as well which we will discuss further when we talk about OOP
 The “new” keyword creates an object out of thin air and is a reserved keyword
@@ -11838,7 +12051,8 @@ It is either set using the global context, object binding, explicit binding, or 
 When set in the global context in a function, it is either the global object (window if in the browser) or undefined (if we are using strict mode)
 To explicitly set the value of the keyword ‘this’, we use call, apply, or bind
 We can also use the ‘new’ keyword to set the context of ‘this’, which we will discuss when we talk about Object Oriented Programming
-OOP 1 - Introduction
+
+##OOP 1 - Introduction
 OBJECTIVES
 Define what OOP (Object Oriented Programming) is
 Revisit the ‘new’ keyword and understand the four things it does
@@ -11902,7 +12116,8 @@ firstHouse // undefined...guess not!
 Why is this not working??
 We are not returning anything from the function so our House function returns undefined
 We are not explicitly binding the keyword “this” or placing it inside a declared object. This means the value of the keyword “this” will be the global object, which is not what we want!
-OOP 2 - New Keyword
+
+## OOP 2 - New Keyword
 So what does the new keyword do? A lot more than we might think…
 It first creates an empty object
 It then sets the keyword “this” to be that empty object
@@ -11939,7 +12154,8 @@ var fido = new Dog("Fido", 1);
 
 rusty.bark() // Rusty just barked!
 fido.bark() // Fido just barked!
-OOP 3 - Multiple Constructors
+
+## OOP 3 - Multiple Constructors
 Let’s create two constructor functions, one for a Car and one for a Motorcycle - here is what it might look like
 Notice how much duplication is going on in the Motorcycle function. Is there any way to “borrow” the Car function and invoke it inside the Motorcycle function?
 function Car(make, model, year){
@@ -12042,12 +12258,14 @@ function Motorcycle(make, model, year){
 	Car.apply(this, arguments);
 	this.numWheels = 2;
 }:
-OOP 4 - Recap
+
+## OOP 4 - Recap
 Object Oriented Programming is a model based on objects constructed from a blueprint. We use OOP to write more modular and shareable code
 In languages that have built-in support for OOP, we call these blueprints “classes” and the objects created from them “instances”
 Since we do not have built-in class support in JavaScript, we mimic classes by using functions. THese constructor functions create objects through the use of the new keyword
 We can avoid duplication in multiple constructor functions by using call or apply
-OOP 5 - Prototypes
+
+## OOP 5 - Prototypes
 OBJECTIVES
 Understand what the prototype object is
 Describe and diagram the relationship between __proto__, prototype, and constructor
@@ -12101,7 +12319,8 @@ var colt = new Person("Colt"); // undefined
 elie.__proto__ === Person.prototype // true
 
 Person.prototype.constructor // function Person(name){ this.name = name; }
-OOP 6 - Prototype Chain
+
+## OOP 6 - Prototype Chain
 WHAT IS THE PROTOTYPE PROPERTY?
 Prototype can have methods or properties that is shared and accessible by all objects created from that constructor function when the “new” keyword is used
 Where does the prototype property fit into all of this?
@@ -12139,7 +12358,8 @@ Here’s another example:
 It is under the __proto__.__proto__ object
 arr.hasOwnProperty('length') // true
 dir(arr) // Array[1], 0: 10, length: 1, __proto__: Array[0]
-OOP 7 - Exercise
+
+## OOP 7 - Exercise
 In the last video, we saw how useful prototypes can be
 Methods and properties can be placed on the Prototype property which can be shared and accessible from all the objects created from that constructor function
 
@@ -12200,7 +12420,8 @@ Vehicle.prototype.turnOff = function(){
 		this.isRunning = false;
     }
 }
-OOP 8 - Solution and Recap
+
+## OOP 8 - Solution and Recap
 Their correct code
 He placed all of the properties that he doesn’t want shared in the constructor function
 function Vehicle(make, model, year){
@@ -12226,7 +12447,8 @@ RECAP
 Every time the new keyword is used, a link between the object created and the prototype property of the constructor is established - this link can be accessed using __proto__
 The prototype object contains a property called constructor, which points back to the constructor function
 To share properties and methods for objects created by a constructor function, place them in the prototype as it is the most efficient
-Closures
+
+## Closures
 OBJECTIVES
 Understand what a closure is and what it is not
 Use a closure to emulate private variables
