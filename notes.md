@@ -3157,6 +3157,22 @@ app.listen(process.env.PORT, process.env.IP, function(){
 - IE `res.render("dogs.html")
 - EJS stands for embedded javascript
 
+## Note about Templates and EJS
+Hi Everyone,
+
+While creating a new node project with npm init, be sure not to name the project (or the folder that the project lives inside of) the same as any of the node packages being used in the project itself.
+
+For instance, you don't want to name the project "ejs" or "express", otherwise you'll end up with a "Refusing to install <package name> as a dependency of itself" error when you try to install said package using the npm install --save <package name>  command.
+
+If you come across this error then open the package.json file and rename the project on the first line: "name": "project-name-here", 
+
+Project names need to be all lowercase and contain url friendly characters, e.g., no spaces, instead use a hyphen.
+
+--------
+Cheers,
+Ian Learn more
+
+## Templates and EJS
 ### Use res.render() to render HTML(from an EJS file)
 - Rendered from home.ejs and love.ejs
 - Home.ejs should be created in a new folder called views
@@ -5183,7 +5199,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
   4. Show, /dogs/:id, GET, Show info about one specific dog
   5. Edit, /dogs/:id/edit, GET, Show edit form for one dog
   6. Update, /dogs/:id/edit, PUT, Update a particular dog, then redirect somewhere
-  7. Destory, /dogs/:id, DELETE, Delete a particular dog, then redirect somewhere
+  7. Destroy, /dogs/:id, DELETE, Delete a particular dog, then redirect somewhere
 
 3. Show example of RESTful routing in practice
 - reviewed blog app and yelpcamp app 
@@ -5197,7 +5213,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 2. Create the Blog model
 ```js
 // RESTfulBlogApp/app.js
-var express = reuquire("express");
+var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
@@ -5230,7 +5246,7 @@ app.list(process.env.PORT, process.env.IP, function(){
 - also made a root route
 ```js
 // RESTfulBlogApp/app.js
-var express = reuquire("express");
+var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
@@ -5329,22 +5345,22 @@ app.list(process.env.PORT, process.env.IP, function(){
 <html>
   <head>
     <title>Blog App</title>
-    <link rel="stylsheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
   </head>
   <body>
 ```
 
 3. Add Simple Nav
 - Nav bars are called menus in semantic-ui
-- made public/stylsheets directory
-- made public/stylsheets directory/app.css
+- made public/stylesheets directory
+- made public/stylesheets directory/app.css
 ```js
 // views/partials/header.ejs
 <html>
   <head>
     <title>Blog App</title>
-    <link rel="stylsheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
-    <link rel="stylsheet" type="text/css" href="/stylesheets/app.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/app.css">
   </head>
   <body>
 
@@ -5357,7 +5373,7 @@ app.list(process.env.PORT, process.env.IP, function(){
     </div>
 ```
 ```css
-/* public/stylsheets directory/app.css */
+/* public/stylesheets directory/app.css */
 i.icon {
   font-size: 2em;
 }
@@ -5368,24 +5384,21 @@ Hello Everyone,
 
 In the next lecture Colt introduces a new format for sending data to the server from a form.
 
-Up to this point you have used the name attribute like so:
+Up to this point you have used the name attribute like so: `<input type="text" name="title"> `
 
-<input type="text" name="title"> 
-
-Now Colt will write it like this:
-
-<input type="text" name="blog[title]"> 
+Now Colt will write it like this: `<input type="text" name="blog[title]"> `
 
 What this will do is, instead of making the value for title available directly from req.body.title it will put it inside of an object, like so: req.body.blog.title 
 
 Now all of the values from the inputs in the form get added into one object (req.body.blog) and you can easily input that data into the database simply by passing in req.body.blog to Blog.create()
 
 Once in the POST route, the req.body.blog object will look something like this:
-
+`
 {
   title: "Hello world",
   description: "This is a blog post"
-}
+}`
+
 I've commented on this further here, including the reason why we use the name="blog[title]" syntax instead of name="blog['title']" or name="blog.title" 
 
 TL;DR: this syntax is specific to body-parser.
@@ -5402,7 +5415,7 @@ Ian
 
 ```js
 // RESTfulBlogApp/app.js
-var express = reuquire("express");
+var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
@@ -5638,8 +5651,7 @@ app.get("/blogs/:id", function(req, res){
     } else {
       res.render("show", {blog: foundBlog});
     }
-  })
-  res.render("");
+  });
 });
 
 app.list(process.env.PORT, process.env.IP, function(){
@@ -5694,7 +5706,7 @@ app.list(process.env.PORT, process.env.IP, function(){
 - USING `<%- %>`
 - Will evaluate your code IE `<strong>Make bold</strong>`
 - It's also dangerous because users can run harmful script tags
-- Moment.js is a useful date package to structur dates
+- Moment.js is a useful date package to structure dates
 
 - TRUNCATING POSTS
 - we use `substring()` method
@@ -5782,8 +5794,7 @@ app.get("/blogs/:id", function(req, res){
     } else {
       res.render("show", {blog: foundBlog});
     }
-  })
-  res.render("");
+  });
 });
 
 // EDIT ROUTE
@@ -5844,19 +5855,21 @@ app.list(process.env.PORT, process.env.IP, function(){
 - NOTE: PUT requests default as GET requests
 - add `action="blogs/<%= blog._id%>?_method=PUT"` and `method="POST"`
 - this will make sure it gets treated as whatever method you put in action line
-- need to install `npm install --save method-override`, add `var methodOverride = require("method-override")`, add `app.use(methodOverride("_method"))`
+- need to install `npm install --save method-override`, add `var methodOverride = require("method-override");`, add `app.use(methodOverride("_method"));`
 ```js
 // RESTfulBlogApp/app.js
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
+var methodOverride = require("method-override")
 
 // App config
 mongoose.connect("mongodb://localhost/restful_blog_app");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
 
 // Mongoose model config
 var blogSchema = new mongoose.Schema({
@@ -5909,8 +5922,7 @@ app.get("/blogs/:id", function(req, res){
     } else {
       res.render("show", {blog: foundBlog});
     }
-  })
-  res.render("");
+  });
 });
 
 // EDIT ROUTE
@@ -5933,8 +5945,7 @@ app.put("/blogs/:id", function(req, res){
     } else {
       res.redirect("/blogs/" + req.params.id);
     }
-  })
-  res.render("");
+  });
 });
 
 app.list(process.env.PORT, process.env.IP, function(){
@@ -6009,8 +6020,7 @@ app.get("/blogs/:id", function(req, res){
     } else {
       res.render("show", {blog: foundBlog});
     }
-  })
-  res.render("");
+  });
 });
 
 // EDIT ROUTE
@@ -6033,8 +6043,7 @@ app.put("/blogs/:id", function(req, res){
     } else {
       res.redirect("/blogs/" + req.params.id);
     }
-  })
-  res.render("");
+  });
 });
 
 // DELETE ROUTE
@@ -6093,7 +6102,7 @@ Ian
 
 ## RESTful Blog App: Final Touches
 1. Sanitize blog body
-- install `npm install express-sanitizer --save`, `var expressSanitizer = require("express-sanitizer"), `app.use(expressSanitizer());`
+- install `npm install express-sanitizer --save`, `var expressSanitizer = require("express-sanitizer")`, `app.use(expressSanitizer());`
 - sanitizer should be after body parser 
 - this will remove harmful scripts
 - we will do it in both create and update routes
@@ -6103,12 +6112,14 @@ var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
+var expressSanitizer = require("express-sanitizer")
 
 // App config
 mongoose.connect("mongodb://localhost/restful_blog_app");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressSanitizer());
 
 // Mongoose model config
 var blogSchema = new mongoose.Schema({
@@ -6162,8 +6173,7 @@ app.get("/blogs/:id", function(req, res){
     } else {
       res.render("show", {blog: foundBlog});
     }
-  })
-  res.render("");
+  });
 });
 
 // EDIT ROUTE
@@ -6187,8 +6197,7 @@ app.put("/blogs/:id", function(req, res){
     } else {
       res.redirect("/blogs/" + req.params.id);
     }
-  })
-  res.render("");
+  });
 });
 
 // DELETE ROUTE
@@ -6257,7 +6266,7 @@ app.list(process.env.PORT, process.env.IP, function(){
   4. Show, /dogs/:id, GET, Show info about one specific dog, Dog.findById()
   5. Edit, /dogs/:id/edit, GET, Show edit form for one dog, Dog.findById()
   6. Update, /dogs/:id/edit, PUT, Update a particular dog, then redirect somewhere, Dog.findByIdAndUpdate()
-  7. Destory, /dogs/:id, DELETE, Delete a particular dog, then redirect somewhere, Dog.findByIdAndRemove()
+  7. Destroy, /dogs/:id, DELETE, Delete a particular dog, then redirect somewhere, Dog.findByIdAndRemove()
 
 # Section 30 Data Associations
 ## Note about potential MongoDB $pushAll error
@@ -6281,7 +6290,8 @@ Ian
 ## Introduction to Associations
 1. Define associations
 - data that is related
-- we will be learning about embedding data and referencing data
+- There are 2 types in MongoDB: Embedded vs Reference Data
+- They are situational
 
 - CONNECTED ENTITIES 
 - interconnected item that makes the data connections
@@ -6304,7 +6314,7 @@ Ian
 - students sign up for a course and a course has many students
 
 ## Embedded Data
-- will be working with user and post
+- Embeded data takes a post and nests it within the user object
 - made new Associations folder, made embed.js
 ```js
 // general structure
@@ -6388,7 +6398,7 @@ var postSchema = new mongoose.Schema({
 var Post = mongoose.model("Post", postSchema);
 
 // USER - email, name
-var userSchema = new mongoose. Schema({
+var userSchema = new mongoose.Schema({
   email: String,
   name: String
   posts: [postSchema]
@@ -6478,7 +6488,7 @@ Ian
 
 ## Object References
 - Made new file references.js
-- we use post ids to reference to the post
+- Reference data users an association usually id to connect posts and users
 ```js
 // general structure
 {
@@ -6510,7 +6520,7 @@ var postSchema = new mongoose.Schema({
 var Post = mongoose.model("Post", postSchema);
 
 // USER - email, name
-var userSchema = new mongoose. Schema({
+var userSchema = new mongoose.Schema({
   email: String,
   name: String,
   posts: [
@@ -6611,7 +6621,7 @@ User.findOne({email: "bob@gmail.com"}).populate("posts").exec(function(err, user
 ```
 
 - WHY DO WE USE EMBED VS REFERENCES?
-- it depends and you can use either styles anytime
+- it depends and you can use either styles for most situations
 - usually there is one type that is better for a situation
 
 ## Module.exports
@@ -6636,10 +6646,12 @@ var postSchema = new mongoose.Schema({
 module.exports = mongoose.model("Post", postSchema);
 ```
 ```js
+// models/user.js
 var mongoose = require("mongoose");
+var Post = require("./models/post");
 
 // USER - email, name
-var userSchema = new mongoose. Schema({
+var userSchema = new mongoose.Schema({
   email: String,
   name: String
   posts: [
@@ -6655,8 +6667,35 @@ module.exports = mongoose.model("User", userSchema);
 
 - we need to require in the references.js file also
 ```js
+// models/references.js
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/blog_demo_2);
 var Post = require("./models/post");
 var User = require("./models/user");
+
+Post.create({
+  title: "How to cook the best burger Part 4",
+  content: "asdfasdfadfawg342ga3g3a 5gaga3rg3arg3a",
+}, function(err, post){
+  if(err){
+    console.log(err);
+  } else {
+    User.findOne({email: "bob@gmail.com"}, function(err, foundUser){
+      if(err){
+        console.log(err);
+      } else {
+        foundUser.posts.push(post);
+        foundUser.save(function(err, data){
+          if(err){
+            console.log(err);
+          } else {
+            console.log(data);
+          }
+        })
+      }
+    });
+  }
+})
 ```
 
 # Section 31 YelpCamp: Comments 
@@ -7112,6 +7151,7 @@ app.get("/campgrounds/:id", function(req, res){
 // ==========================
 // COMMENTS ROUTES
 // ==========================
+// NEW ROUTE
 app.get("/campgrounds/:id/comments/new", function(req, res){
   Campground.findById(req.params.id, function(err, campground){
     if(err){
@@ -7122,6 +7162,7 @@ app.get("/campgrounds/:id/comments/new", function(req, res){
   });
 })
 
+// CREATE ROUTE
 app.post("/campgrounds/:id/comments", function(req, res){
   Campground.findById(req.params.id, function(err, campground){
     if(err){
@@ -7268,7 +7309,7 @@ cheers,
 Ian
 
 ## YelpCamp: Styling Comments Pt 2
-1. Add public direcoty
+1. Add public directory
 2. Add custom stylesheet
 - make a public directory, make stylesheets inside, make main.css inside
 - We need to add some custom stylings with a stylesheet
@@ -7325,7 +7366,7 @@ Course TA
 - some information is saved about the user and encoded, like a key
 
 3. Discuss sessions
-  - Express-Session
+  - [Express-Session](https://www.npmjs.com/package/express-session)
     - This is a package that will help with working with sessions
 
 ## Secret Page Code Along Pt. 1
@@ -7383,7 +7424,7 @@ app.list(process.env.PORT, process.env.IP, function(){
 - REQUIRE ADDITIONAL PACKAGES
 - we added user schema
 - need to use both lines app.use() when we are using passport package
-- the secret block is to how to encode our sessions
+- the block requiring express-session is to how to encode our sessions
 - serializeUser() deserializeUser() helps to encode our sessions
 
 ```js
@@ -7496,8 +7537,6 @@ app.get("/register", function(req, res){
 })
 
 app.post("/register", function(req, res){
-  req.body.username
-  req.body.username
   User.register(new User({username: req.body.username}), req.body.password, function(err, user){
     if(err){
       console.log(err);
@@ -7585,8 +7624,6 @@ app.get("/register", function(req, res){
 })
 
 app.post("/register", function(req, res){
-  req.body.username
-  req.body.username
   User.register(new User({username: req.body.username}), req.body.password, function(err, user){
     if(err){
       console.log(err);
@@ -7686,8 +7723,6 @@ app.get("/register", function(req, res){
 })
 
 app.post("/register", function(req, res){
-  req.body.username
-  req.body.username
   User.register(new User({username: req.body.username}), req.body.password, function(err, user){
     if(err){
       console.log(err);
@@ -7730,7 +7765,7 @@ app.list(process.env.PORT, process.env.IP, function(){
 ```
 
 
-# Section 33 YelpCamp: Adding Authenication
+# Section 33 YelpCamp: Adding Authentication
 ## YelpCamp: Adding Auth Pt. 1
 1. Install all pacakages needed for auth
 2. Define User Model
@@ -8386,6 +8421,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 
 - DISALLOW COMMENTING IF NOT LOGGED IN
 - added to both get and post request to protect our routes
+- we use isLoggedIn middleware in our comments get and post route
 ```js
 // app.js
 var express = require("express");
@@ -8548,7 +8584,9 @@ app.listen(process.env.PORT, process.env.IP, function(){
 
 ## YelpCamp: Adding Auth Pt. 5
 1. Show/hide auth links in navbar correctly
-- Use req.user to pass user data to campgrounds get page
+- Use `req.user` to pass user data to campgrounds get page
+- The app.use containing `req.user` will keep the credentials in the current session for the user
+- use `<%= currentUser.username %>` to pass down to view components
 ```js
 // app.js
 var express = require("express");
@@ -8760,7 +8798,7 @@ var express     = require("express"),
     User        = require("./models/user"),
     seedDB      = require("./seeds")
     
-//requring routes
+// requiring routes
 var commentRoutes    = require("./routes/comments"),
     campgroundRoutes = require("./routes/campgrounds"),
     indexRoutes      = require("./routes/index")
@@ -8788,6 +8826,7 @@ app.use(function(req, res, next){
    next();
 });
 
+// default paths
 app.use("/", indexRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
@@ -8858,7 +8897,8 @@ module.exports = router;
 
 - COMMENTS.JS
 - our id parameter isn't working from app.js
-- we need to use `mergeParams: true` in the router
+- we need to add `mergeParams: true` in the `
+var router  = express.Router({mergeParams: true});`
 ```js
 // routes/comments.js
 var express = require("express");
@@ -9141,6 +9181,29 @@ module.exports = router;
 <% include ../partials/footer %>
 ```
 
+- UPDATE 4/26/2018
+- if you are trying to update comments after setting up author as current logged in user, you have to understand the .findByIdAndUpdate() method
+- a good post is [
+Regarding findByIdAndUpdate](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3485800)
+- I was having problems where after creating the comment in my Wanderlustoria App, it would show the current user as author
+- The problem was when updating the comment, the author would dissapear
+- the problem lies in how .findByAndUpdate() works and lies in the 2nd parameter as it overwrites everything unless specified
+- So `req.body.comment` got me that error because it overwrote everything the whole comment object
+- Changing to `{body: req.body.comment.body}` will only change the body of the comment and not mess with the author information
+```js
+// UPDATE ROUTE
+router.put("/comments/:commentId", function(req, res){
+  req.body.comment.body = req.sanitize(req.body.comment.body);
+
+  Comment.findByIdAndUpdate(req.params.commentId, {body: req.body.comment.body}, function(err, foundComment){
+    if(err){
+      console.log(err);
+    } else {
+      res.redirect("/cities/" + req.params.cityId + "/stories/" + req.params.storyId);
+    }
+  });
+});
+```
 ## YelpCamp: User Associations: Campground
 1. Prevent an unauthenticated user from creating a campground
 2. Save username+id to newly created campground
@@ -9242,7 +9305,7 @@ module.exports = mongoose.model("Campground", campgroundSchema);
 ```
 
 - CHANGE CAMPGROUND ROUTE
-- we changed the EDIT route to grab info about current user to associate it with the campground
+- we changed the CREATE route to grab info about current user to associate it with the campground
 - we create a new author object to pass to the campground
 ```js
 // routes/campground.js
@@ -9442,8 +9505,6 @@ app.listen(process.env.PORT, process.env.IP, function(){
 var express = require("express");
 var router  = express.Router();
 var Campground = require("../models/campground");
-var middleware = require("../middleware");
-
 
 //INDEX - show all campgrounds
 router.get("/", function(req, res){
@@ -9500,14 +9561,14 @@ router.get("/:id", function(req, res){
 });
 
 // EDIT CAMPGROUND ROUTE
-router.get("/:id/edit",  function(req, res){
+router.get("/:id/edit", function(req, res){
     Campground.findById(req.params.id, function(err, foundCampground){
         res.render("campgrounds/edit", {campground: foundCampground});
     });
 });
 
 // UPDATE CAMPGROUND ROUTE
-router.put("/:id",  function(req, res){
+router.put("/:id", function(req, res){
     // find and update the correct campground
     Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
        if(err){
@@ -9518,8 +9579,6 @@ router.put("/:id",  function(req, res){
        }
     });
 });
-
-// DESTROY CAMPGROUND ROUTE
 
 // MIDDLEWARE
 function isLoggedIn(req, res, next){
@@ -9564,7 +9623,7 @@ module.exports = router;
 
 - ADDING EDIT BUTTON
 ```js
-// views/campgrounds/how.ejs
+// views/campgrounds/show.ejs
 <% include ../partials/header %>
 <div class="container">
     <div class="row">
@@ -9602,13 +9661,11 @@ module.exports = router;
                             <p>
                                 <%= comment.text %> 
                             </p>
-                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
                             <a class="btn btn-xs btn-warning" 
                                href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
                             <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
                                 <input type="submit" class="btn btn-xs btn-danger" value="Delete">
                             </form>
-                        <% } %>
                         </div>
                     </div>
                 <% }) %>
@@ -9621,7 +9678,7 @@ module.exports = router;
 ```
 
 ## Campground Destroy
-1. Add Destory Route
+1. Add Destroy Route
 2. Add Delete button
 
 - ADD DESTROY ROUTE
@@ -9630,8 +9687,6 @@ module.exports = router;
 var express = require("express");
 var router  = express.Router();
 var Campground = require("../models/campground");
-var middleware = require("../middleware");
-
 
 //INDEX - show all campgrounds
 router.get("/", function(req, res){
@@ -9730,7 +9785,7 @@ module.exports = router;
 ```
 
 - ADDING DELETE BUTTON
-- we have a to make a form because we need to use a form to send a POST request with method override of delete
+- we have to make a form because we need to use a form to send a POST request with method override of delete
 ```js
 // views/campgrounds/show.ejs
 <% include ../partials/header %>
@@ -9754,12 +9809,10 @@ module.exports = router;
                     <p>
                         <em>Submitted By <%= campground.author.username %></em>
                     </p>
-                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
-                        <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
-                        <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
-                            <button class="btn btn-xs btn-danger">Delete</button>
-                        </form>
-                    <% }%>
+                      <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                      <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                          <button class="btn btn-xs btn-danger">Delete</button>
+                      </form>
                 </div>
             </div>
             <div class="well">
@@ -9775,13 +9828,11 @@ module.exports = router;
                             <p>
                                 <%= comment.text %> 
                             </p>
-                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
                             <a class="btn btn-xs btn-warning" 
                                href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
                             <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
                                 <input type="submit" class="btn btn-xs btn-danger" value="Delete">
                             </form>
-                        <% } %>
                         </div>
                     </div>
                 <% }) %>
@@ -9832,13 +9883,14 @@ Follow me on [YouTube](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
 - so we use the native mongoose method to check if they are equal
 
 - we can now use `res.redirect("back")` to take the user to the previous page
+
+- START WITH CHECKING CAMPGROUND OWNERSHIP
+- we are adding middleware for for edit, update, and destroy routes
 ```js
 // routes/campgrounds.js
 var express = require("express");
 var router  = express.Router();
 var Campground = require("../models/campground");
-var middleware = require("../middleware");
-
 
 //INDEX - show all campgrounds
 router.get("/", function(req, res){
@@ -9853,7 +9905,7 @@ router.get("/", function(req, res){
 });
 
 //CREATE - add new campground to DB
-router.post("/", middleware.isLoggedIn, function(req, res){
+router.post("/", isLoggedIn, function(req, res){
     // get data from form and add to campgrounds array
     var name = req.body.name;
     var image = req.body.image;
@@ -9876,7 +9928,7 @@ router.post("/", middleware.isLoggedIn, function(req, res){
 });
 
 //NEW - show form to create new campground
-router.get("/new",  isLoggedIn, function(req, res){
+router.get("/new", isLoggedIn, function(req, res){
    res.render("campgrounds/new"); 
 });
 
@@ -9895,7 +9947,7 @@ router.get("/:id", function(req, res){
 });
 
 // EDIT CAMPGROUND ROUTE
-router.get("/:id/edit",  checkCampgroundOwnership, function(req, res){
+router.get("/:id/edit", checkCampgroundOwnership, function(req, res){
     Campground.findById(req.params.id, function(err, foundCampground){
         res.render("campgrounds/edit", {campground: foundCampground});
     });
@@ -9926,14 +9978,14 @@ router.delete("/:id", checkCampgroundOwnership, function(req, res){
 });
 
 // middleware
-checkCommentOwnership = function(req, res, next) {
+checkCampgroundOwnership = function(req, res, next) {
  if(req.isAuthenticated()){
-        Comment.findById(req.params.comment_id, function(err, foundComment){
+        Campground.findById(req.params.id, function(err, foundCampground){
            if(err){
                res.redirect("back");
            }  else {
-               // does user own the comment?
-            if(foundComment.author.id.equals(req.user._id)) {
+               // does user own the campground?
+            if(foundCampground.author.id.equals(req.user._id)) {
                 next();
             } else {
                 res.redirect("back");
@@ -10036,7 +10088,7 @@ var Campground = require("../models/campground");
 var Comment = require("../models/comment");
 
 //Comments New
-router.get("/new",isLoggedIn, function(req, res){
+router.get("/new", isLoggedIn, function(req, res){
     // find campground by id
     console.log(req.params.id);
     Campground.findById(req.params.id, function(err, campground){
@@ -10058,17 +10110,17 @@ router.post("/", isLoggedIn,function(req, res){
        } else {
         Comment.create(req.body.comment, function(err, comment){
            if(err){
-               console.log(err);
+              console.log(err);
            } else {
-               //add username and id to comment
-               comment.author.id = req.user._id;
-               comment.author.username = req.user.username;
-               //save comment
-               comment.save();
-               campground.comments.push(comment);
-               campground.save();
-               console.log(comment);
-               res.redirect('/campgrounds/' + campground._id);
+              //add username and id to comment
+              comment.author.id = req.user._id;
+              comment.author.username = req.user.username;
+              //save comment
+              comment.save();
+              campground.comments.push(comment);
+              campground.save();
+              console.log(comment);
+              res.redirect('/campgrounds/' + campground._id);
            }
         });
        }
@@ -10090,9 +10142,9 @@ router.get("/:comment_id/edit", function(req, res){
 router.put("/:comment_id", function(req, res){
    Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function(err, updatedComment){
       if(err){
-          res.redirect("back");
+        res.redirect("back");
       } else {
-          res.redirect("/campgrounds/" + req.params.id);
+        res.redirect("/campgrounds/" + req.params.id);
       }
    });
 });
@@ -10554,10 +10606,10 @@ module.exports = router;
 
 # Section 36 YelpCamp: UI Improvements
 ## Refactoring Middleware
-
 - we are using middleware everywhere and duplicating the middleware on routes
 - make index.js into new folder called middleware
-- we can use index.js as opposed to middleware.js because [fillme]
+- we can use index.js as opposed to middleware.js because there's a folder rule where folders will automatically point to index.js
+- so you can see that we import it as `let middleware = require('../middleware');` and don't even bother specifying index.js in the path
 - you can declare with dot notation, keys within an object, or setting module.exports as an object
 ```js
 // USING DOT NOTATION
@@ -10603,7 +10655,7 @@ module.exports = {
 var Campground = require("../models/campground");
 var Comment = require("../models/comment");
 
-// all the middleare goes here
+// all the middleware goes here
 var middlewareObj = {};
 
 middlewareObj.checkCampgroundOwnership = function(req, res, next) {
@@ -10656,7 +10708,8 @@ module.exports = middlewareObj;
 
 - WHY WE NAME MIDDLEWARE TO INDEX.JS
 - normal is `var middleware = require("../middleware/index.js")'`
-- we can shorten to `var middleware = require("../middleware");` because index.js is a special name reserved for this file
+- we can shorten to `var middleware = require("../middleware");` because index.js is a special name reserved for every folder
+- it's the first file that javascript looks for in a folder if not defined
 - Official explanation: it enables us to make our code a bit shorter and simpler without having to write the "index.js" file name since it's automatically looked up if not defined.
 
 - CAMPGROUNDS.JS ROUTE
@@ -10901,7 +10954,7 @@ app.listen(process.env.PORT, process.env.IP, function(){
 var Campground = require("../models/campground");
 var Comment = require("../models/comment");
 
-// all the middleare goes here
+// all the middleware goes here
 var middlewareObj = {};
 
 middlewareObj.checkCampgroundOwnership = function(req, res, next) {
@@ -10961,6 +11014,8 @@ module.exports = middlewareObj;
 - ADDING MESSAGE TO ROUTES
 - we have to handle it in the show login form in index.js by passing in the message object
 - in the next videos, we won't have to do this way
+- FIX use `res.redirect` after `req.flash("error", err.message)` because `res.render()` will create a bug
+- more on Ian's note
 ```js
 // routes/index.js
 var express = require("express");
@@ -10984,7 +11039,7 @@ router.post("/register", function(req, res){
     User.register(newUser, req.body.password, function(err, user){
         if(err){
             req.flash("error", err.message);
-            return res.render("register");
+            return res.redirect("register");
         }
         passport.authenticate("local")(req, res, function(){
            req.flash("success", "Welcome to YelpCamp " + user.username);
@@ -11019,13 +11074,28 @@ module.exports = router;
 ## Note about Flash Messages
 Hello Everyone!
 
-The following lectures produce a small bug where you have to click the register button twice to see the flash message. Please see this discussion for the solution.
+The following lectures produce a small bug where you have to click the register button twice to see the flash message. Please see this discussion for [the solution](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/1700812).
 
 Also, if you're getting an error along the lines of: "req.flash is not a function", then be sure that the following line: app.use(flash());  comes before your passport configuration in app.js
 
 Cheers,
 Ian
 Course TA
+
+- Tim's note: if you want to implement it for your login routes, you can visit [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/1983196).
+- In short, just add `failureFlash: true`:
+```js
+router.post("/login", passport.authenticate("local", 
+    {
+      successRedirect: "/campgrounds", 
+      failureRedirect: "/login",
+      failureFlash: true
+    }), function(req, res){
+      });
+```
+- The messages can be customized, see [here](https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/2179932)
+- You can add a successFlash but that's more in-depth
+- For a quick solution, you can add `successFlash: "Welcome back!"` below the failureFlash
 
 ## Flash Messages: Adding Bootstrap
 - we will move code to the header so it will appear on every page
@@ -11060,7 +11130,7 @@ router.post("/register", function(req, res){
     User.register(newUser, req.body.password, function(err, user){
         if(err){
             req.flash("error", err.message);
-            return res.render("register");
+            return res.redirect("register");
         }
         passport.authenticate("local")(req, res, function(){
            req.flash("success", "Welcome to YelpCamp " + user.username);
@@ -11414,60 +11484,88 @@ Hi Everyone!
 
 I've been working on some additional features for the YelpCamp project. You can view the source code here. So far I've included the following features: 
 
-CSS3 background animation on landing page 
-Fuzzy Search 
-Campground location with Google Maps
-Campground cost 
-Footer 
-Home link in navigation 
-Authentication flash messages 
-Display time since post was created with Moment JS 
-User profile 
-Password reset 
-Image upload with multer and cloudinary 
-Migration/upgrade instructions for Bootstrap 4
-*See below for all tutorial links as well as additional tutorials provided by Zarko and Darrell
+- CSS3 background animation on landing page 
+- Fuzzy Search 
+- Campground location with Google Maps
+- Campground cost 
+- Footer 
+- Home link in navigation 
+- Authentication flash messages 
+- Display time since post was created with Moment JS 
+- User profile 
+- Password reset 
+- Image upload with multer and cloudinary 
+- Migration/upgrade instructions for Bootstrap 4
+- *See below for all tutorial links as well as additional tutorials provided by Zarko and Darrell
 
-- UI Improvements (login and signup, nav-bar, registration flash message) - http://slides.com/nax3t/yelpcamp-refactor-ui
+### UI Improvements (login and signup, nav-bar, registration flash message) - http://slides.com/nax3t/yelpcamp-refactor-ui
 
-- Pricing feature - http://slides.com/nax3t/yelpcamp-refactor-pricing
+### Pricing feature - http://slides.com/nax3t/yelpcamp-refactor-pricing
 
-UPDATED!!! - Google Maps location - https://www.youtube.com/watch?v=B4OuCjQLJ9k
+### UPDATED!!! - Google Maps location - https://www.youtube.com/watch?v=B4OuCjQLJ9k
 
-- Time since created w/ Moment JS - http://slides.com/nax3t/yelpcamp-refactor-moment
+### Time since created w/ Moment JS - http://slides.com/nax3t/yelpcamp-refactor-moment
 
-- Admin role (user roles) - https://www.youtube.com/watch?v=somc45pnM2k
+### Admin role (user roles) - https://www.youtube.com/watch?v=somc45pnM2k
+- Ian implements an `isAdmin` value to the User Schema
+- He thens have users input a secret code on sign up to become an admin
+- I made user false by default, then will go into mongo and change them to admin
+- used `db.users.update({username: "Tim"}, {$set: {isAdmin: true}})`
+- I also created a dashboard so that I could redirect after the admin logins separate from a regular user
 
-- User profile - https://youtu.be/6ar77jZ_ajc
+### User profile - https://youtu.be/6ar77jZ_ajc
+- implemented
 
-- Password reset - https://youtu.be/UV9FvlTySGg
+### Password reset - https://youtu.be/UV9FvlTySGg
+- Add email, resetPasswordToken, and resetPasswordExpires to user schema
+```js
+let UserSchema = new mongoose.Schema({
+  username: {type: String, unique: true, required: true},
+  password: String,
+  firstName: String,
+  lastName: String,
+  email: {type: String, unique: true, required: true},
+  resetPasswordToken: String,
+  restPasswordExpires: Date,
+  isAdmin: {type: Boolean, default: false}
+})
+```
+- you also need an email account
+- you can use [dotenv](https://www.npmjs.com/package/dotenv) to handle gmail password
 
-- Fuzzy Search - https://youtu.be/9_lKMTXVk64
+### Fuzzy Search - https://youtu.be/9_lKMTXVk64
+- can access form inputs with `req.query`
+- [Fuzzy Searching with MongoDB](https://stackoverflow.com/questions/38421664/fuzzy-searching-with-mongodb?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa)
+- [Locus](https://www.npmjs.com/package/locus) is a debugger tool for Express, use `eval(require('locus'))`
 
-- Image upload - https://youtu.be/RHd4rP9U9SA
+### Image upload - https://youtu.be/RHd4rP9U9SA
+- [Ian's repo](https://github.com/nax3t/image_upload_example)
+- [Cloudinary](https://cloudinary.com/)
+- [Video 2](https://www.youtube.com/watch?v=U0GSOkbHW5o)
+- used some async/await to update and destroy
 
-NEW!!! - Migrating to Bootstrap 4 - https://www.youtube.com/watch?v=NHHh0sj1uKY
+### NEW!!! - Migrating to Bootstrap 4 - https://www.youtube.com/watch?v=NHHh0sj1uKY
 
 Tutorials by Zarko:
 --------------------------
 
-- Comments on the show page - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190558
+### Comments on the show page - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190558
 
-- Pagination on campgrounds index - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190496
+### Pagination on campgrounds index - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190496
 
 Tutorials by Darrell: 
 ---------------------------
 
-- Contact page with reCaptcha - https://blog.djpawson.me/2018/02/05/yelpcamp-contact-page-with-recaptcha/
+### Contact page with reCaptcha - https://blog.djpawson.me/2018/02/05/yelpcamp-contact-page-with-recaptcha/
 
-- NEW!!! Signup with reCaptcha - https://blog.djpawson.me/2018/02/28/recaptcha-login/
+### NEW!!! Signup with reCaptcha - https://blog.djpawson.me/2018/02/28/recaptcha-login/
 
 Additional Student Resources: 
 -------------------------------------------
 
-- Useful links from the course - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3839394
+### Useful links from the course - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3839394
 
-- More useful links - https://docs.google.com/spreadsheets/d/1UHbhgZrpY7UwPbJqMlQjCLrxmReLhWH_bZeQIosYa4w/edit#gid=0
+### More useful links - https://docs.google.com/spreadsheets/d/1UHbhgZrpY7UwPbJqMlQjCLrxmReLhWH_bZeQIosYa4w/edit#gid=0
 
 Have a YelpCamp tutorial that you'd like featured? Please contact me in a direct message with a link to the tutorial.
 
