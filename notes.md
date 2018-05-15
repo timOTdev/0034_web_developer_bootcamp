@@ -9880,7 +9880,7 @@ Follow me on [YouTube](https://www.youtube.com/channel/UCqo2YWBtmFSWhuUk4WEyfGg)
 - we are not using isLoggedIn middleware because we will be writing our own
 
 - `foundCampground.author.id` and `req.user._id` look identical but former is a mongoose object, and latter is a string
-- so we use the native mongoose method to check if they are equal
+- so we use the native mongoose method `.equals` to check if they are equal
 
 - we can now use `res.redirect("back")` to take the user to the previous page
 
@@ -11496,17 +11496,30 @@ I've been working on some additional features for the YelpCamp project. You can 
 - Password reset 
 - Image upload with multer and cloudinary 
 - Migration/upgrade instructions for Bootstrap 4
-- *See below for all tutorial links as well as additional tutorials provided by Zarko and Darrell
+- See below for all tutorial links as well as additional tutorials provided by Zarko and Darrell
+
+### Really nice sample
+- [PlaceCamp](https://shielded-waters-82539.herokuapp.com/)
 
 ### UI Improvements (login and signup, nav-bar, registration flash message) - http://slides.com/nax3t/yelpcamp-refactor-ui
+- implemented
 
 ### Pricing feature - http://slides.com/nax3t/yelpcamp-refactor-pricing
+- skipped
 
 ### UPDATED!!! - Google Maps location - https://www.youtube.com/watch?v=B4OuCjQLJ9k
+- implemented
+- remember you need 2 geocoder api keys, one for the server to request and one for users to request
+- [Slides](https://slides.com/nax3t/yelpcamp-refactor-google-maps#/)
+- [Source Code](https://github.com/nax3t/google-maps-api)
+- [Geocoder API Key Instructions](https://developers.google.com/maps/documentation/geocoding/get-api-key)
+- can use `source.unsplash.com/<picture id>` to find raw html address
 
 ### Time since created w/ Moment JS - http://slides.com/nax3t/yelpcamp-refactor-moment
+- implemented 
 
 ### Admin role (user roles) - https://www.youtube.com/watch?v=somc45pnM2k
+- implemented
 - Ian implements an `isAdmin` value to the User Schema
 - He thens have users input a secret code on sign up to become an admin
 - I made user false by default, then will go into mongo and change them to admin
@@ -11517,6 +11530,12 @@ I've been working on some additional features for the YelpCamp project. You can 
 - implemented
 
 ### Password reset - https://youtu.be/UV9FvlTySGg
+- implemented 
+[Sahat's Guide](http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/)
+[Ian's Repo](https://github.com/nax3t/yelp-camp-refactored/tree/password-reset)
+[Google Less Secure Link](https://myaccount.google.com/lesssecureapps)
+[Async package](https://caolan.github.io/async/)
+
 - Add email, resetPasswordToken, and resetPasswordExpires to user schema
 ```js
 let UserSchema = new mongoose.Schema({
@@ -11534,31 +11553,41 @@ let UserSchema = new mongoose.Schema({
 - you can use [dotenv](https://www.npmjs.com/package/dotenv) to handle gmail password
 
 ### Fuzzy Search - https://youtu.be/9_lKMTXVk64
+- implemented
 - can access form inputs with `req.query`
 - [Fuzzy Searching with MongoDB](https://stackoverflow.com/questions/38421664/fuzzy-searching-with-mongodb?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa)
 - [Locus](https://www.npmjs.com/package/locus) is a debugger tool for Express, use `eval(require('locus'))`
 
 ### Image upload - https://youtu.be/RHd4rP9U9SA
+- implemented 
 - [Ian's repo](https://github.com/nax3t/image_upload_example)
 - [Cloudinary](https://cloudinary.com/)
 - [Video 2](https://www.youtube.com/watch?v=U0GSOkbHW5o)
 - used some async/await to update and destroy
 
 ### NEW!!! - Migrating to Bootstrap 4 - https://www.youtube.com/watch?v=NHHh0sj1uKY
+- watched
 
 Tutorials by Zarko:
 --------------------------
 
 ### Comments on the show page - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190558
+- skipped
 
 ### Pagination on campgrounds index - https://www.udemy.com/the-web-developer-bootcamp/learn/v4/questions/3190496
+- implemented 
+- [Mikhail's Guide](https://evdokimovm.github.io/javascript/nodejs/mongodb/pagination/expressjs/ejs/bootstrap/2017/08/20/create-pagination-with-nodejs-mongodb-express-and-ejs-step-by-step-from-scratch.html)
+- [MyPlace Source](https://github.com/rundev97/MyPlace-Full-Stack-App)
+- [MyPlace Demo](https://shielded-waters-82539.herokuapp.com/placecamp/page/2)
 
 Tutorials by Darrell: 
 ---------------------------
 
 ### Contact page with reCaptcha - https://blog.djpawson.me/2018/02/05/yelpcamp-contact-page-with-recaptcha/
+- I used formspree and it already has a built-in captcha
 
 ### NEW!!! Signup with reCaptcha - https://blog.djpawson.me/2018/02/28/recaptcha-login/
+- Did not implement
 
 Additional Student Resources: 
 -------------------------------------------
@@ -11658,6 +11687,14 @@ Ian
 Course TA
 
 # Section 38 Deploying
+## My Notes
+- If I have implemented google geocoder API, make sure to change a few things for production
+- See this [slideshow](https://slides.com/nax3t/yelpcamp-refactor-google-maps#/) and [video](https://www.youtube.com/watch?v=B4OuCjQLJ9k) for instruction
+- Follow these steps:
+1. [Restrict HTTP referrers to heroku](https://slides.com/nax3t/yelpcamp-refactor-google-maps#/10)
+2. [Export keys in production](https://slides.com/nax3t/yelpcamp-refactor-google-maps#/14)
+3. [Remove localhost restriction since api key expose in show.ejs](https://slides.com/nax3t/yelpcamp-refactor-google-maps#/23)
+
 ## Intro to Deploying and Heroku
 - we want to deploy outside of cloud 9 since it's not designed for deployment
 - we will be using heroku, a service that we use to deploy apps
@@ -11775,7 +11812,7 @@ Course TA
 - we use amazon AWS and free sandbox plan
 - we need to set up a user that is a developer connect to this database
 - copy: `mongoose.connect("mongodb://<dbuser>:<dbpassword>@ds239359.mlab.com:39359/timh1203_yelpcamp")`
-- paste in our app.js with a new user
+- paste in our app.js with a new user or use environmental variables technique in next chapter
 
 - CONNECTING WITH MLAB 
 - we will be running the c9 yelpcamp and connected to the mlab database
@@ -11811,7 +11848,7 @@ Course TA
 1. We can change it in "config variables" in Heroku's settings
 - set the DATABASEURL key, and heroku's long url as the value
 - it should now work
-2. Do it via command line with `heroku config:set DATABASEURL=mongodb://<dbuser>:<dbpassword>@ds239359.mlab.com:39359/timh1203_yelpcam`
+2. Do it via command line with `heroku config:set DATABASEURL=mongodb://<dbuser>:<dbpassword>@ds239359.mlab.com:39359/timh1203_yelpcamp`
 
 - SETTING UP A BACKUP URL
 - if the Heroku's database is screwed up, it can at least default to something else
